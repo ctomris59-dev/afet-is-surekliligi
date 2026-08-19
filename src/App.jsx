@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { supabase } from "./lib/supabaseClient";
 
 /* ======================================================================
    ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (LIGHT EDITORIAL FULLSCREEN)
@@ -403,11 +404,90 @@ function MethodologyModal({ onClose }) {
   );
 }
 
+function KVKKModal({ onClose }) {
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 z-50" onClick={onClose}>
+      <div className="bg-[#FAF9F6] border border-slate-900 max-w-xl w-full max-h-[85vh] overflow-y-auto p-8 md:p-12 text-slate-900 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-8 pb-4 border-b border-slate-900">
+          <div>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500 block mb-1">DOKÜMAN #00</span>
+            <h3 className="text-xl font-bold tracking-tight uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              KVKK Aydınlatma Metni
+            </h3>
+          </div>
+          <button onClick={onClose} className="font-mono text-xs uppercase text-slate-500 hover:text-slate-900 transition">
+            [KAPAT]
+          </button>
+        </div>
+        <div className="space-y-5 text-xs leading-relaxed" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <div>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// VERİ SORUMLUSU</p>
+            <p className="text-slate-600">
+              Bu değerlendirme, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında
+              Çorlu Ticaret ve Sanayi Odası ("Oda") tarafından veri sorumlusu sıfatıyla yürütülmektedir.
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// İŞLENEN VERİLER</p>
+            <p className="text-slate-600">
+              Değerlendirmeyi tamamlayıp sonuç raporunu görüntülemeniz için firma unvanı, yetkili
+              adı-soyadı, e-posta adresi, telefon numarası ile anket yanıtlarınız ve hesaplanan
+              olgunluk skorlarınız işlenir.
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// İŞLEME AMACI</p>
+            <p className="text-slate-600">
+              Verileriniz; afet ve iş sürekliliği olgunluk düzeyinizin ölçülmesi, size özel sonuç
+              raporunun sunulması ve Oda tarafından ilerleyen dönemde (öngörülen süre yaklaşık 6 ay)
+              tarafınızla iletişime geçilerek gelişim sürecinizin takip edilmesi amacıyla işlenir.
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// HUKUKİ SEBEP</p>
+            <p className="text-slate-600">
+              KVKK md. 5/1 uyarınca açık rızanıza dayanılarak; Oda'nın üyelerine yönelik afet ve iş
+              sürekliliği kapasitesini geliştirme faaliyetlerinin yürütülmesi meşru amacıyla işlenir.
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// SAKLAMA VE GÜVENLİK</p>
+            <p className="text-slate-600">
+              Veriler, yalnızca Oda yetkilileri tarafından erişilebilen güvenli bir veritabanında
+              saklanır ve amaç için gerekli süre boyunca tutulur; üçüncü taraflarla paylaşılmaz veya
+              ticari amaçla kullanılmaz.
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// HAKLARINIZ</p>
+            <p className="text-slate-600">
+              KVKK md. 11 uyarınca verilerinize erişme, düzeltilmesini/silinmesini talep etme ve rızanızı
+              geri alma dahil haklarınızı kullanmak için Oda'ya yazılı olarak başvurabilirsiniz.
+            </p>
+          </div>
+          <p className="text-slate-400 text-[10px] italic">
+            Bu metin genel bir taslaktır; yayına almadan önce Oda'nın hukuk/uyum birimince
+            gözden geçirilmesi önerilir.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [step, setStep] = useState("intro");
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showMethodology, setShowMethodology] = useState(false);
+  const [showKVKK, setShowKVKK] = useState(false);
+  const [kvkkAccepted, setKvkkAccepted] = useState(false);
+
+  // Zorunlu iletişim bilgileri (sonuç/PDF görülmeden önce alınır)
+  const [contact, setContact] = useState({ companyName: "", contactName: "", email: "", phone: "" });
+  const [contactErrors, setContactErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const currentQ = QUESTIONS[qIndex];
 
@@ -417,7 +497,8 @@ export default function App() {
     if (qIndex < QUESTIONS.length - 1) {
       setQIndex(qIndex + 1);
     } else {
-      setStep("results");
+      // Anket bitti — sonuçlar/PDF'ten önce zorunlu iletişim ekranına geç
+      setStep("contact");
     }
   };
 
@@ -444,7 +525,67 @@ export default function App() {
       return { ...d, dLevel, levelIndex, scenario: DIM_SCENARIOS[d.key][levelIndex] };
     });
 
-  const restart = () => { setAnswers({}); setQIndex(0); setStep("intro"); };
+  const restart = () => {
+    setAnswers({});
+    setQIndex(0);
+    setStep("intro");
+    setKvkkAccepted(false);
+    setContact({ companyName: "", contactName: "", email: "", phone: "" });
+    setContactErrors({});
+    setSubmitError("");
+  };
+
+  const handleContactChange = (field) => (e) => {
+    setContact({ ...contact, [field]: e.target.value });
+    if (contactErrors[field]) setContactErrors({ ...contactErrors, [field]: null });
+  };
+
+  const validateContact = () => {
+    const errs = {};
+    if (!contact.companyName.trim()) errs.companyName = "Firma adı zorunludur";
+    if (!contact.contactName.trim()) errs.contactName = "Ad soyad zorunludur";
+    if (!contact.email.trim()) errs.email = "E-posta zorunludur";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim())) errs.email = "Geçerli bir e-posta girin";
+    if (!contact.phone.trim()) errs.phone = "Telefon zorunludur";
+    else if (contact.phone.replace(/\D/g, "").length < 10) errs.phone = "Geçerli bir telefon girin";
+    setContactErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateContact()) return;
+
+    setSubmitting(true);
+    setSubmitError("");
+
+    const { error } = await supabase.from("skorkart_basvurular").insert({
+      company_name: contact.companyName.trim(),
+      contact_name: contact.contactName.trim(),
+      email: contact.email.trim(),
+      phone: contact.phone.trim(),
+      overall_score: overall,
+      level_name: level.name,
+      risk_score: byDim.risk,
+      emergency_score: byDim.emergency,
+      it_score: byDim.it,
+      supply_score: byDim.supply,
+      people_score: byDim.people,
+      testing_score: byDim.testing,
+      answers,
+      kvkk_consent: true,
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      console.error("Supabase kayıt hatası:", error);
+      setSubmitError("Kaydınız gönderilirken bir sorun oluştu. Lütfen tekrar deneyin.");
+      return;
+    }
+
+    setStep("results");
+  };
 
   return (
     <div className="h-screen w-screen bg-[#FAF9F6] text-slate-900 flex flex-col justify-between overflow-hidden relative" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -510,9 +651,33 @@ export default function App() {
                   ))}
                 </div>
 
+                <label className="flex items-start gap-2.5 mb-4 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={kvkkAccepted}
+                    onChange={(e) => setKvkkAccepted(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 accent-slate-900 flex-shrink-0 cursor-pointer"
+                  />
+                  <span className="text-[11px] text-slate-600 leading-snug">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); setShowKVKK(true); }}
+                      className="underline font-bold text-slate-900 hover:text-red-700"
+                    >
+                      KVKK Aydınlatma Metni
+                    </button>
+                    'ni okudum, kişisel verilerimin belirtilen amaçlarla işlenmesini onaylıyorum.
+                  </span>
+                </label>
+
                 <button
-                  onClick={() => setStep("quiz")}
-                  className="w-full bg-slate-900 hover:bg-red-700 text-white font-mono text-xs uppercase tracking-widest py-4 px-6 transition duration-300 text-center font-bold"
+                  onClick={() => kvkkAccepted && setStep("quiz")}
+                  disabled={!kvkkAccepted}
+                  className={`w-full font-mono text-xs uppercase tracking-widest py-4 px-6 transition duration-300 text-center font-bold ${
+                    kvkkAccepted
+                      ? "bg-slate-900 hover:bg-red-700 text-white cursor-pointer"
+                      : "bg-slate-300 text-slate-500 cursor-not-allowed"
+                  }`}
                 >
                   DEĞERLENDİRMEYİ BAŞLAT →
                 </button>
@@ -561,6 +726,88 @@ export default function App() {
                   </button>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ---------------- CONTACT (Sonuç/PDF öncesi zorunlu) ---------------- */}
+          {step === "contact" && (
+            <div className="max-w-2xl mx-auto">
+              <div className="border-b border-slate-900/10 pb-4 mb-6">
+                <span className="font-mono text-[11px] uppercase tracking-widest text-red-700 block mb-1 font-bold">// SON ADIM</span>
+                <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 uppercase leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  Sonucunuzu görmek için bilgilerinizi girin
+                </h2>
+                <p className="text-slate-600 text-xs md:text-sm mt-2 leading-relaxed">
+                  Değerlendirme sonucunuz ve PDF raporunuz, aşağıdaki bilgiler kaydedildikten sonra
+                  görüntülenecektir. Bu bilgiler yalnızca Çorlu TSO tarafından ilerleyen süreçte
+                  gelişiminizi takip etmek amacıyla kullanılacaktır.
+                </p>
+              </div>
+
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                <div>
+                  <label className="font-mono text-[10px] uppercase tracking-widest text-slate-500 block mb-1.5">Firma Adı *</label>
+                  <input
+                    type="text"
+                    value={contact.companyName}
+                    onChange={handleContactChange("companyName")}
+                    className={`w-full p-3.5 bg-white/80 border text-sm focus:outline-none focus:border-slate-900 ${contactErrors.companyName ? "border-red-600" : "border-slate-900/15"}`}
+                    placeholder="Örn. ABC Tekstil San. ve Tic. A.Ş."
+                  />
+                  {contactErrors.companyName && <p className="text-red-700 text-[11px] mt-1">{contactErrors.companyName}</p>}
+                </div>
+
+                <div>
+                  <label className="font-mono text-[10px] uppercase tracking-widest text-slate-500 block mb-1.5">Ad Soyad *</label>
+                  <input
+                    type="text"
+                    value={contact.contactName}
+                    onChange={handleContactChange("contactName")}
+                    className={`w-full p-3.5 bg-white/80 border text-sm focus:outline-none focus:border-slate-900 ${contactErrors.contactName ? "border-red-600" : "border-slate-900/15"}`}
+                    placeholder="Yetkili adı soyadı"
+                  />
+                  {contactErrors.contactName && <p className="text-red-700 text-[11px] mt-1">{contactErrors.contactName}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-slate-500 block mb-1.5">E-posta *</label>
+                    <input
+                      type="email"
+                      value={contact.email}
+                      onChange={handleContactChange("email")}
+                      className={`w-full p-3.5 bg-white/80 border text-sm focus:outline-none focus:border-slate-900 ${contactErrors.email ? "border-red-600" : "border-slate-900/15"}`}
+                      placeholder="ornek@firma.com"
+                    />
+                    {contactErrors.email && <p className="text-red-700 text-[11px] mt-1">{contactErrors.email}</p>}
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] uppercase tracking-widest text-slate-500 block mb-1.5">Telefon *</label>
+                    <input
+                      type="tel"
+                      value={contact.phone}
+                      onChange={handleContactChange("phone")}
+                      className={`w-full p-3.5 bg-white/80 border text-sm focus:outline-none focus:border-slate-900 ${contactErrors.phone ? "border-red-600" : "border-slate-900/15"}`}
+                      placeholder="05XX XXX XX XX"
+                    />
+                    {contactErrors.phone && <p className="text-red-700 text-[11px] mt-1">{contactErrors.phone}</p>}
+                  </div>
+                </div>
+
+                {submitError && (
+                  <p className="text-red-700 text-xs bg-red-50 border border-red-200 p-3">{submitError}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className={`w-full font-mono text-xs uppercase tracking-widest py-4 px-6 transition duration-300 text-center font-bold ${
+                    submitting ? "bg-slate-300 text-slate-500 cursor-wait" : "bg-slate-900 hover:bg-red-700 text-white"
+                  }`}
+                >
+                  {submitting ? "KAYDEDİLİYOR..." : "SONUCUMU GÖRÜNTÜLE →"}
+                </button>
+              </form>
             </div>
           )}
 
@@ -657,6 +904,7 @@ export default function App() {
       </footer>
 
       {showMethodology && <MethodologyModal onClose={() => setShowMethodology(false)} />}
+      {showKVKK && <KVKKModal onClose={() => setShowKVKK(false)} />}
     </div>
   );
 }
