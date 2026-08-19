@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 
 /* ======================================================================
-   ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (LINEAR / VERCEL SAAS STİLİ)
+   ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (EDITORIAL / SWISS DESIGN)
    ====================================================================== */
 
 const DIMENSIONS = [
@@ -220,11 +220,11 @@ const QUESTIONS = [
 ];
 
 const LEVELS = [
-  { min: 0, max: 20, name: "Habersiz / Reaktif", color: "#EF4444", border: "border-red-500/30", bg: "bg-red-500/10", text: "text-red-400", desc: "Afet ve kriz hazırlığı büyük ölçüde tesadüfe bırakılmış. Herhangi bir kesinti işletmeyi ciddi risk altında bırakabilir." },
-  { min: 21, max: 40, name: "Farkında / Başlangıç", color: "#F97316", border: "border-orange-500/30", bg: "bg-orange-500/10", text: "text-orange-400", desc: "Riskler kısmen biliniyor ama yazılı, sistematik bir hazırlık yok. İlk adım: temel riskleri ve kritik süreçleri yazılı hale getirmek." },
-  { min: 41, max: 60, name: "Gelişmekte", color: "#F59E0B", border: "border-amber-500/30", bg: "bg-amber-500/10", text: "text-amber-400", desc: "Temel unsurlar (plan, yedekleme, roller) kısmen mevcut. Sıradaki öncelik: planları test etmek ve boşlukları kapatmak." },
-  { min: 61, max: 80, name: "Yönetilen", color: "#3B82F6", border: "border-blue-500/30", bg: "bg-blue-500/10", text: "text-blue-400", desc: "İş sürekliliği kurumsallaşmaya başlamış; düzenli gözden geçirme ve test var. İnce ayar ve kapsam genişletme aşaması." },
-  { min: 81, max: 100, name: "Dayanıklı / Optimize", color: "#10B981", border: "border-emerald-500/30", bg: "bg-emerald-500/10", text: "text-emerald-400", desc: "ISO 22301 ruhuna uygun, olgun bir yönetim sistemi. Sürekli iyileştirme döngüsü işliyor." },
+  { min: 0, max: 20, name: "Reaktif", desc: "Afet ve kriz hazırlığı büyük ölçüde tesadüfe bırakılmış. Herhangi bir kesinti işletmeyi ciddi risk altında bırakabilir." },
+  { min: 21, max: 40, name: "Başlangıç", desc: "Riskler kısmen biliniyor ama yazılı, sistematik bir hazırlık yok. İlk adım: temel riskleri ve kritik süreçleri yazılı hale getirmek." },
+  { min: 41, max: 60, name: "Gelişmekte", desc: "Temel unsurlar (plan, yedekleme, roller) kısmen mevcut. Sıradaki öncelik: planları test etmek ve boşlukları kapatmak." },
+  { min: 61, max: 80, name: "Yönetilen", desc: "İş sürekliliği kurumsallaşmaya başlamış; düzenli gözden geçirme ve test var. İnce ayar ve kapsam genişletme aşaması." },
+  { min: 81, max: 100, name: "Optimize", desc: "ISO 22301 ruhuna uygun, olgun bir yönetim sistemi. Sürekli iyileştirme döngüsü işliyor." },
 ];
 
 const getLevel = (score) => LEVELS.find(l => score >= l.min && score <= l.max) || LEVELS[0];
@@ -238,66 +238,41 @@ const DIM_RECS = {
   testing: "Yılda en az bir kez masabaşı (tabletop) tatbikatı planlayın — düşük maliyetli, yüksek etkili bir adımdır.",
 };
 
-function polar(angleDeg, r, cx = 110, cy = 120) {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-function arcPath(a0, a1, r) {
-  const p0 = polar(a0, r), p1 = polar(a1, r);
-  const large = a1 - a0 > 180 ? 1 : 0;
-  return `M${p0.x},${p0.y} A${r},${r} 0 ${large} 1 ${p1.x},${p1.y}`;
-}
-
-function Gauge({ value, color }) {
-  const angle = -180 + (Math.max(0, Math.min(100, value)) / 100) * 180;
-  const needle = polar(angle, 70);
-
-  return (
-    <div className="relative flex flex-col items-center justify-center">
-      <svg viewBox="0 0 220 135" className="w-full max-w-[210px]">
-        <path d={arcPath(-180, 0, 84)} fill="none" stroke="#1E293B" strokeWidth="12" strokeLinecap="round" />
-        <path d={arcPath(-180, angle, 84)} fill="none" stroke={color} strokeWidth="12" strokeLinecap="round" style={{ transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)" }} />
-        <line x1="110" y1="120" x2={needle.x} y2={needle.y} stroke="#F8FAFC" strokeWidth="3" strokeLinecap="round" />
-        <circle cx="110" cy="120" r="6" fill="#F8FAFC" />
-      </svg>
-      <div className="absolute bottom-2 text-center">
-        <span className="text-4xl font-extrabold tracking-tight text-white font-mono">{Math.round(value)}</span>
-        <span className="text-xs text-slate-500 block font-mono font-medium mt-0.5">/ 100 SKOR</span>
-      </div>
-    </div>
-  );
-}
-
 function MethodologyModal({ onClose }) {
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn" onClick={onClose}>
-      <div className="bg-[#0D1117] border border-slate-800 rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 shadow-2xl text-slate-300" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
-          <h3 className="text-base font-semibold text-white tracking-tight">Metodoloji &amp; Dayanaklar</h3>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition text-sm font-mono">✕</button>
+    <div className="fixed inset-0 bg-[#111111]/80 backdrop-blur-sm flex items-center justify-center p-6 z-50" onClick={onClose}>
+      <div className="bg-[#FAF9F6] border border-slate-900 rounded-none max-w-2xl w-full max-h-[90vh] overflow-y-auto p-10 md:p-14 text-slate-900" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-10 pb-6 border-b border-slate-900">
+          <div>
+            <span className="font-mono text-xs uppercase tracking-widest text-slate-500 block mb-1">DOKÜMAN #01</span>
+            <h3 className="text-2xl font-bold tracking-tight uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Metodoloji &amp; Dayanaklar</h3>
+          </div>
+          <button onClick={onClose} className="font-mono text-sm uppercase underline tracking-widest hover:text-red-700 transition">
+            [KAPAT]
+          </button>
         </div>
-        <div className="space-y-4 text-xs leading-relaxed">
-          <div className="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800/80">
-            <p className="font-semibold text-slate-100 mb-1">ISO 22301:2019 — İş Sürekliliği Yönetim Sistemi</p>
-            <p className="text-slate-400">Risk değerlendirmesi, iş etki analizi (BIA), süreklilik stratejisi, plan geliştirme, tatbikat/test ve sürekli iyileştirme (PUKÖ) döngüsü bu standardın ana yapı taşlarıdır.</p>
+        <div className="space-y-8 text-sm leading-relaxed">
+          <div>
+            <p className="font-mono text-xs text-red-700 uppercase font-bold mb-1">// 01 STANDARDİZASYON</p>
+            <p className="font-bold text-base mb-1">ISO 22301:2019 — İş Sürekliliği Yönetim Sistemi</p>
+            <p className="text-slate-600">Risk değerlendirmesi, iş etki analizi (BIA), süreklilik stratejisi, plan geliştirme, tatbikat/test ve PUKÖ döngüsü bu standardın ana yapı taşlarıdır.</p>
           </div>
-          <div className="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800/80">
-            <p className="font-semibold text-slate-100 mb-1">UNDRR Sendai Afet Risk Azaltma Çerçevesi (2015-2030)</p>
-            <p className="text-slate-400">BM çerçevesinin ilk önceliği olan "afet riskini anlamak", Risk &amp; Tehlike Analizi boyutunun temelidir.</p>
+          <div>
+            <p className="font-mono text-xs text-red-700 uppercase font-bold mb-1">// 02 AFET RİSKİ</p>
+            <p className="font-bold text-base mb-1">UNDRR Sendai Afet Risk Azaltma Çerçevesi (2015-2030)</p>
+            <p className="text-slate-600">BM çerçevesinin ilk önceliği olan "afet riskini anlamak", Risk &amp; Tehlike Analizi boyutunun temelini oluşturur.</p>
           </div>
-          <div className="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800/80">
-            <p className="font-semibold text-slate-100 mb-1">6331 Sayılı İSG Kanunu</p>
-            <p className="text-slate-400">Acil durum planı hazırlama, tahliye ve çalışanları bilgilendirme yükümlülüklerini esas alır.</p>
+          <div>
+            <p className="font-mono text-xs text-red-700 uppercase font-bold mb-1">// 03 YASAL MEVZUAT</p>
+            <p className="font-bold text-base mb-1">6331 Sayılı İş Sağlığı ve Güvenliği Kanunu</p>
+            <p className="text-slate-600">Acil durum planı hazırlama, tahliye düzenlemeleri yapma ve çalışanları bilgilendirme yükümlülüklerini esas alır.</p>
           </div>
-          <div className="p-3.5 bg-slate-900/80 rounded-xl border border-slate-800/80">
-            <p className="font-semibold text-slate-100 mb-1">NIST SP 800-34</p>
-            <p className="text-slate-400">BT ve veri sürekliliği sorularının teknik çerçevesini oluşturur.</p>
+          <div>
+            <p className="font-mono text-xs text-red-700 uppercase font-bold mb-1">// 04 BT SÜREKLİLİĞİ</p>
+            <p className="font-bold text-base mb-1">NIST SP 800-34 — Olağanüstü Durum Planlama Rehberi</p>
+            <p className="text-slate-600">Bilgi sistemleri sürekliliği için ABD Ulusal Standartlar Enstitüsü'nün rehberini temel alır.</p>
           </div>
         </div>
-        <button onClick={onClose} className="mt-6 w-full bg-slate-800 hover:bg-slate-700 text-white rounded-xl py-2.5 text-xs font-semibold transition border border-slate-700">
-          Kapat
-        </button>
       </div>
     </div>
   );
@@ -316,9 +291,9 @@ export default function App() {
     const next = { ...answers, [currentQ.id]: value };
     setAnswers(next);
     if (qIndex < QUESTIONS.length - 1) {
-      setTimeout(() => setQIndex(qIndex + 1), 140);
+      setQIndex(qIndex + 1);
     } else {
-      setTimeout(() => setStep("results"), 140);
+      setStep("results");
     }
   };
 
@@ -341,200 +316,191 @@ export default function App() {
   const restart = () => { setAnswers({}); setQIndex(0); setStep("intro"); };
 
   return (
-    <div className="min-h-screen bg-[#070A0F] text-slate-200 font-sans selection:bg-red-500 selection:text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-[#FAF9F6] text-slate-900 selection:bg-slate-900 selection:text-white flex flex-col justify-between font-sans">
       
       {/* Header */}
-      <header className="border-b border-slate-800/80 bg-[#070A0F]/80 backdrop-blur-md sticky top-0 z-40 print:hidden">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center font-bold text-white text-xs shadow-lg shadow-red-900/20 border border-red-500/30">
-              Ç
-            </div>
-            <div>
-              <div className="text-xs font-bold tracking-tight text-white uppercase">Çorlu Ticaret ve Sanayi Odası</div>
-              <div className="text-[11px] text-slate-500 font-mono">Afet &amp; İş Sürekliliği Skorkartı</div>
-            </div>
+      <header className="border-b border-slate-900/10 px-8 py-8 print:hidden">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div>
+            <span className="font-mono text-[11px] uppercase tracking-widest text-slate-500 block mb-0.5">KURUMSAL SKORKART</span>
+            <h1 className="font-bold text-lg tracking-tight uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Çorlu Ticaret ve Sanayi Odası
+            </h1>
           </div>
           <button
             onClick={() => setShowMethodology(true)}
-            className="text-[11px] font-mono text-slate-400 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg px-3 py-1.5 transition"
+            className="font-mono text-xs uppercase tracking-widest border border-slate-900 px-5 py-2.5 hover:bg-slate-900 hover:text-white transition duration-200"
           >
-            Metodoloji
+            METODOLOJİ
           </button>
         </div>
-        {step === "quiz" && (
-          <div className="w-full bg-slate-900 h-0.5">
-            <div className="bg-red-600 h-full transition-all duration-300" style={{ width: `${progress}%` }} />
-          </div>
-        )}
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-6xl mx-auto px-6 py-10 flex-1 w-full flex items-center justify-center">
+      {/* Main Area */}
+      <main className="max-w-7xl mx-auto px-8 py-12 md:py-20 flex-1 w-full flex items-center">
         <div className="w-full">
 
           {/* ---------------- INTRO ---------------- */}
           {step === "intro" && (
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/20 bg-red-500/10 text-red-400 text-[11px] font-mono mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                ISO 22301 · SENDAİ ÇERÇEVESİ · 6331 S. KANUN
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-end">
+              <div className="lg:col-span-8">
+                <span className="font-mono text-xs uppercase tracking-widest text-red-700 block mb-6 font-bold">
+                  [ ISO 22301 · SENDAİ ÇERÇEVESİ · 6331 S. KANUN ]
+                </span>
+                <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 uppercase leading-none mb-8" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  İşletmeniz bir kriz anında ne kadar dayanıklı?
+                </h2>
+                <p className="text-slate-600 text-lg md:text-xl font-normal max-w-2xl leading-relaxed">
+                  18 soruluk bu editoryal öz-değerlendirme; kurumunuzun afet, siber kriz ve tedarik kesintilerine karşı olgunluk seviyesini ölçer.
+                </p>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-                İşletmeniz bir kriz anında ne kadar dayanıklı?
-              </h1>
+              <div className="lg:col-span-4 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-900/10 pt-8 lg:pt-0 lg:pl-12">
+                <div className="space-y-3 font-mono text-xs uppercase tracking-widest text-slate-500 mb-12">
+                  {DIMENSIONS.map((d, i) => (
+                    <div key={d.key} className="flex justify-between border-b border-slate-900/5 pb-2">
+                      <span>0{i + 1}. {d.short}</span>
+                      <span className="text-slate-900">✓</span>
+                    </div>
+                  ))}
+                </div>
 
-              <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-10 max-w-2xl mx-auto">
-                18 soruluk bu öz-değerlendirme; işletmenizin deprem, yangın, siber saldırı veya tedarik kesintisi karşısındaki hazırlığını 6 ana boyutta analiz eder.
-              </p>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-10 text-left max-w-2xl mx-auto">
-                {DIMENSIONS.map((d) => (
-                  <div key={d.key} className="p-3 bg-[#0D1117] border border-slate-800/80 rounded-xl hover:border-slate-700 transition">
-                    <div className="text-[10px] font-mono text-red-500 uppercase tracking-wider mb-1">{d.short}</div>
-                    <div className="text-xs font-medium text-slate-300">{d.label}</div>
-                  </div>
-                ))}
+                <button
+                  onClick={() => setStep("quiz")}
+                  className="w-full bg-slate-900 text-white font-mono text-sm uppercase tracking-widest py-6 px-8 hover:bg-red-700 transition duration-300 text-center font-bold"
+                >
+                  DEĞERLENDİRMEYİ BAŞLAT →
+                </button>
               </div>
-
-              <button
-                onClick={() => setStep("quiz")}
-                className="bg-white hover:bg-slate-200 text-slate-950 font-semibold px-8 py-3.5 rounded-xl text-sm transition shadow-xl shadow-white/5 active:scale-95"
-              >
-                Değerlendirmeyi Başlat →
-              </button>
             </div>
           )}
 
           {/* ---------------- QUIZ ---------------- */}
           {step === "quiz" && currentQ && (
-            <div className="max-w-2xl mx-auto bg-[#0D1117] border border-slate-800/80 rounded-2xl p-6 sm:p-10 shadow-2xl relative">
-              <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-800/80">
-                <span className="text-[10px] font-mono font-bold tracking-widest text-red-400 uppercase bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded">
-                  {DIMENSIONS.find((d) => d.key === currentQ.dim)?.short}
-                </span>
-                <span className="text-xs font-mono text-slate-500">{qIndex + 1} / {QUESTIONS.length}</span>
+            <div className="max-w-4xl mx-auto">
+              {/* Progress Indicator */}
+              <div className="flex items-center justify-between font-mono text-xs uppercase tracking-widest text-slate-500 mb-8 border-b border-slate-900/10 pb-4">
+                <span className="text-red-700 font-bold">// BOYUT: {DIMENSIONS.find((d) => d.key === currentQ.dim)?.label.toUpperCase()}</span>
+                <span>SORU {qIndex + 1} / {QUESTIONS.length}</span>
               </div>
 
-              <h2 className="text-lg sm:text-xl font-medium text-white mb-8 leading-relaxed">
+              {/* Question Text */}
+              <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 uppercase leading-tight mb-12" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 {currentQ.text}
               </h2>
 
-              <div className="space-y-3">
-                {currentQ.options.map((opt, i) => {
-                  const isSelected = answers[currentQ.id] === i + 1;
-                  return (
-                    <button
-                      key={i}
-                      onClick={() => handleAnswer(i + 1)}
-                      className={`w-full text-left p-4 rounded-xl border transition text-xs sm:text-sm font-medium flex items-center justify-between group
-                        ${isSelected
-                          ? "border-red-500 bg-red-500/10 text-white shadow-lg shadow-red-950/30"
-                          : "border-slate-800/80 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900 text-slate-300"}`}
-                    >
-                      <span className="pr-4 leading-normal">{opt}</span>
-                      <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] flex-shrink-0 transition
-                        ${isSelected ? "border-red-500 bg-red-500 text-white" : "border-slate-700 group-hover:border-slate-500"}`}>
-                        {isSelected ? "✓" : ""}
-                      </span>
-                    </button>
-                  );
-                })}
+              {/* Massive Buttons */}
+              <div className="space-y-4">
+                {currentQ.options.map((opt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleAnswer(i + 1)}
+                    className="w-full text-left p-6 md:p-8 border border-slate-900/20 hover:border-slate-900 hover:bg-slate-900 hover:text-white transition duration-200 flex items-start gap-6 group"
+                  >
+                    <span className="font-mono text-xs uppercase tracking-widest text-slate-400 group-hover:text-red-500 pt-1 font-bold">
+                      [0{i + 1}]
+                    </span>
+                    <span className="text-base md:text-lg font-medium tracking-tight">
+                      {opt}
+                    </span>
+                  </button>
+                ))}
               </div>
 
+              {/* Prev Button */}
               {qIndex > 0 && (
-                <button
-                  onClick={() => setQIndex(qIndex - 1)}
-                  className="mt-8 text-xs font-mono text-slate-500 hover:text-slate-300 transition flex items-center gap-1"
-                >
-                  ← Önceki Soru
-                </button>
+                <div className="mt-12">
+                  <button
+                    onClick={() => setQIndex(qIndex - 1)}
+                    className="font-mono text-xs uppercase tracking-widest text-slate-500 hover:text-slate-900 transition"
+                  >
+                    ← ÖNCEKİ SORUYA DÖN
+                  </button>
+                </div>
               )}
             </div>
           )}
 
           {/* ---------------- RESULTS ---------------- */}
           {step === "results" && (
-            <div className="space-y-6 max-w-5xl mx-auto">
-              {/* Top Banner Card */}
-              <div className="bg-[#0D1117] border border-slate-800/80 rounded-2xl p-8 shadow-2xl flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0">
-                  <Gauge value={overall} color={level.color} />
-                </div>
-                <div className="flex-1 text-center md:text-left">
-                  <div className={`inline-block px-3 py-1 rounded-md text-xs font-mono font-bold tracking-wider mb-3 ${level.bg} ${level.text} border ${level.border}`}>
-                    SEVİYE {LEVELS.indexOf(level) + 1} — {level.name.toUpperCase()}
+            <div className="max-w-5xl mx-auto">
+              
+              {/* Giant Editorial Score */}
+              <div className="border-b border-slate-900 pb-16 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+                  <div className="md:col-span-6">
+                    <span className="font-mono text-xs uppercase tracking-widest text-red-700 block mb-2 font-bold">// NİHAİ DEĞERLENDİRME</span>
+                    <h2 className="text-6xl md:text-8xl font-extrabold tracking-tighter uppercase text-slate-900" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      {level.name}
+                    </h2>
                   </div>
-                  <h2 className="text-xl font-bold text-white mb-2">Genel Olgunluk Durumu</h2>
-                  <p className="text-slate-400 text-xs sm:text-sm leading-relaxed max-w-xl">{level.desc}</p>
+                  <div className="md:col-span-6 flex flex-col md:items-end justify-end">
+                    <div className="font-mono text-7xl md:text-9xl font-extrabold tracking-tight text-slate-900 leading-none">
+                      {Math.round(overall)}<span className="text-xl md:text-3xl text-slate-400">/100</span>
+                    </div>
+                  </div>
                 </div>
+                <p className="text-slate-600 text-lg md:text-xl font-normal mt-8 max-w-3xl leading-relaxed">
+                  {level.desc}
+                </p>
               </div>
 
-              {/* Grid Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Dimensions Score Card */}
-                <div className="bg-[#0D1117] border border-slate-800/80 rounded-2xl p-6 shadow-xl">
-                  <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-slate-400 mb-6 pb-3 border-b border-slate-800/80">
-                    Boyut Bazında Analiz
-                  </h3>
-                  <div className="space-y-4">
+              {/* Breakdown Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-16">
+                
+                {/* Left: Dimension Scores */}
+                <div>
+                  <h3 className="font-mono text-xs uppercase tracking-widest text-slate-400 mb-8 border-b border-slate-900/10 pb-2">// BOYUT BAZLI ANALİZ</h3>
+                  <div className="space-y-6">
                     {DIMENSIONS.map((d) => (
-                      <div key={d.key}>
-                        <div className="flex justify-between text-xs mb-1.5">
-                          <span className="text-slate-300 font-medium">{d.label}</span>
-                          <span className="font-mono text-slate-400">{Math.round(byDim[d.key])}%</span>
+                      <div key={d.key} className="border-b border-slate-900/10 pb-4">
+                        <div className="flex justify-between font-mono text-xs uppercase tracking-widest mb-2">
+                          <span className="font-bold text-slate-900">{d.label}</span>
+                          <span className="text-slate-500">%{Math.round(byDim[d.key])}</span>
                         </div>
-                        <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                          <div
-                            className="h-full rounded-full transition-all duration-700"
-                            style={{ width: `${byDim[d.key]}%`, backgroundColor: level.color }}
-                          />
+                        <div className="w-full bg-slate-200 h-1">
+                          <div className="bg-slate-900 h-1 transition-all duration-1000" style={{ width: `${byDim[d.key]}%` }} />
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Priority Areas Card */}
-                <div className="bg-[#0D1117] border border-slate-800/80 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-xs font-mono font-bold tracking-wider uppercase text-slate-400 mb-6 pb-3 border-b border-slate-800/80">
-                      Öncelikli Gelişim Alanları
-                    </h3>
-                    <div className="space-y-3">
-                      {weakestDims.map((d) => (
-                        <div key={d.key} className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 flex gap-3">
-                          <div className="w-1 rounded-full flex-shrink-0" style={{ backgroundColor: level.color }} />
-                          <div>
-                            <div className="text-xs font-bold text-white">{d.label}</div>
-                            <div className="text-[11px] text-slate-400 mt-0.5 leading-normal">{DIM_RECS[d.key]}</div>
-                          </div>
+                {/* Right: Weakest Areas */}
+                <div>
+                  <h3 className="font-mono text-xs uppercase tracking-widest text-slate-400 mb-8 border-b border-slate-900/10 pb-2">// ÖNCELİKLİ AKSİYONLAR</h3>
+                  <div className="space-y-6">
+                    {weakestDims.map((d, i) => (
+                      <div key={d.key} className="border-l-2 border-slate-900 pl-4 py-1">
+                        <div className="font-mono text-xs uppercase tracking-widest text-red-700 font-bold mb-1">
+                          0{i + 1}. {d.label}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 mt-8 print:hidden">
-                    <button
-                      onClick={() => window.print()}
-                      className="flex-1 bg-white hover:bg-slate-200 text-slate-950 rounded-xl py-2.5 text-xs font-semibold transition"
-                    >
-                      PDF Raporu İndir
-                    </button>
-                    <button
-                      onClick={restart}
-                      className="flex-1 border border-slate-800 hover:bg-slate-900 text-slate-300 rounded-xl py-2.5 text-xs font-semibold transition"
-                    >
-                      Yeniden Başlat
-                    </button>
+                        <div className="text-sm font-medium text-slate-700 leading-relaxed">
+                          {DIM_RECS[d.key]}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
+
               </div>
 
-              <p className="text-[11px] text-slate-600 text-center pt-4">
-                Bu sonuç bir öz-değerlendirmedir; ISO 22301 sertifikasyonu veya resmi denetimin yerine geçmez.
-              </p>
+              {/* Massive Action Buttons */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:hidden">
+                <button
+                  onClick={() => window.print()}
+                  className="bg-slate-900 text-white font-mono text-xs uppercase tracking-widest py-5 px-8 hover:bg-red-700 transition duration-200 font-bold"
+                >
+                  PDF RAPORU İNDİR →
+                </button>
+                <button
+                  onClick={restart}
+                  className="border border-slate-900 text-slate-900 font-mono text-xs uppercase tracking-widest py-5 px-8 hover:bg-slate-900 hover:text-white transition duration-200 font-bold"
+                >
+                  YENİDEN BAŞLAT
+                </button>
+              </div>
+
             </div>
           )}
 
@@ -542,8 +508,9 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/60 py-4 text-center text-[11px] text-slate-600 font-mono print:hidden">
-        Çorlu Ticaret ve Sanayi Odası © 2026
+      <footer className="border-t border-slate-900/10 px-8 py-6 font-mono text-[11px] uppercase tracking-widest text-slate-400 flex justify-between items-center print:hidden">
+        <span>ÇORLU TSO © 2026</span>
+        <span>AFET &amp; İŞ SÜREKLİLİĞİ SKORKARTI</span>
       </footer>
 
       {showMethodology && <MethodologyModal onClose={() => setShowMethodology(false)} />}
