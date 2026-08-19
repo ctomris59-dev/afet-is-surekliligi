@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
 
 /* ======================================================================
-   ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (LIGHT EDITORIAL)
+   ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (LIGHT EDITORIAL FULLSCREEN)
    ====================================================================== */
 
+/* ---------------- Değerlendirme boyutları ---------------- */
 const DIMENSIONS = [
   { key: "risk", label: "Risk & Tehlike Analizi", short: "Risk", ref: "ISO 22301 md.8.2 / Sendai Öncelik 1" },
   { key: "emergency", label: "Acil Durum Müdahale Planı", short: "Müdahale", ref: "6331 s. Kanun / İşyeri Acil Durum Yönetmeliği" },
@@ -13,6 +14,7 @@ const DIMENSIONS = [
   { key: "testing", label: "Tatbikat & Sürekli İyileştirme", short: "Tatbikat", ref: "ISO 22301 md.8.5 / md.9-10" },
 ];
 
+/* ---------------- Soru bankası ---------------- */
 const QUESTIONS = [
   {
     id: "r1", dim: "risk",
@@ -214,23 +216,151 @@ const QUESTIONS = [
   },
 ];
 
+/* ---------------- Olgunluk seviyeleri ---------------- */
 const LEVELS = [
-  { min: 0, max: 20, name: "Reaktif", desc: "Afet ve kriz hazırlığı büyük ölçüde tesadüfe bırakılmış. Herhangi bir kesinti işletmeyi ciddi risk altında bırakabilir." },
-  { min: 21, max: 40, name: "Başlangıç", desc: "Riskler kısmen biliniyor ama yazılı, sistematik bir hazırlık yok. İlk adım: temel riskleri ve kritik süreçleri yazılı hale getirmek." },
-  { min: 41, max: 60, name: "Gelişmekte", desc: "Temel unsurlar (plan, yedekleme, roller) kısmen mevcut. Sıradaki öncelik: planları test etmek ve boşlukları kapatmak." },
-  { min: 61, max: 80, name: "Yönetilen", desc: "İş sürekliliği kurumsallaşmaya başlamış; düzenli gözden geçirme ve test var. İnce ayar ve kapsam genişletme aşaması." },
-  { min: 81, max: 100, name: "Optimize", desc: "ISO 22301 ruhuna uygun, olgun bir yönetim sistemi. Sürekli iyileştirme döngüsü işliyor." },
+  { min: 0, max: 20, name: "Habersiz / Reaktif", color: "#7C2D12", desc: "Afet ve kriz hazırlığı büyük ölçüde tesadüfe bırakılmış. Herhangi bir kesinti işletmeyi ciddi risk altında bırakabilir." },
+  { min: 21, max: 40, name: "Farkında / Başlangıç", color: "#B91C1C", desc: "Riskler kısmen biliniyor ama yazılı, sistematik bir hazırlık yok. İlk adım: temel riskleri ve kritik süreçleri yazılı hale getirmek." },
+  { min: 41, max: 60, name: "Gelişmekte", color: "#C2410C", desc: "Temel unsurlar (plan, yedekleme, roller) kısmen mevcut. Sıradaki öncelik: planları test etmek ve boşlukları kapatmak." },
+  { min: 61, max: 80, name: "Yönetilen", color: "#B45309", desc: "İş sürekliliği kurumsallaşmaya başlamış; düzenli gözden geçirme ve test var. İnce ayar ve kapsam genişletme aşaması." },
+  { min: 81, max: 100, name: "Dayanıklı / Optimize", color: "#0F766E", desc: "ISO 22301 ruhuna uygun, olgun bir yönetim sistemi. Sürekli iyileştirme döngüsü işliyor." },
 ];
 
 const getLevel = (score) => LEVELS.find(l => score >= l.min && score <= l.max) || LEVELS[0];
 
-const DIM_RECS = {
-  risk: "Risk envanterinizi yazılı hale getirin; AFAD'ın bölgenize özel tehlike haritalarını referans alın.",
-  emergency: "6331 sayılı Kanun kapsamında zorunlu olan acil durum planını yazılı hale getirip tüm çalışanlarla paylaşın.",
-  it: "Kritik verileriniz için 3-2-1 yedekleme kuralını (3 kopya, 2 farklı ortam, 1'i uzak konumda) uygulamayı değerlendirin.",
-  supply: "En kritik 2-3 girdi için alternatif tedarikçi görüşmelerine başlayın.",
-  people: "Güncel bir acil iletişim listesi oluşturun ve yılda bir kez test edin.",
-  testing: "Yılda en az bir kez masabaşı (tabletop) tatbikatı planlayın — düşük maliyetli, yüksek etkili bir adımdır.",
+/* ---------------- Senaryo Matrisi ---------------- */
+const DIM_SCENARIOS = {
+  risk: [
+    {
+      scenario: "Riskler şu ana kadar sistematik olarak değerlendirilmemiş — Sendai Çerçevesi'nin ilk ve en temel önceliği olan 'riski anlama' aşaması henüz atılmamış. İlk adım karmaşık bir analiz değil, tek sayfalık bir liste: deprem, yangın, sel, siber saldırı ve tedarik kesintisini alt alta yazıp her biri için kaba bir olasılık/etki puanı vermek.",
+      actions: ["AFAD'ın il/ilçe bazlı deprem tehlike haritasından bölgenizin risk seviyesini öğrenin", "En olası 5 riski tek sayfada listeleyin, olasılık ve etkiyi 1-5 arası puanlayın", "Listeyi yıllık takvime bir hatırlatma olarak ekleyin"],
+    },
+    {
+      scenario: "Riskler ekip içinde konuşuluyor ama hiçbir yerde yazılı değil — bu bilgi, riski bilen kişi işten ayrıldığında kayboluyor demektir. ISO 22301 madde 8.2.3'ün istediği ilk şey tam da bu: riskleri kurumsal hafızaya, yazılı bir kayda taşımak.",
+      actions: ["Ekip toplantısında konuşulan riskleri tek bir belgede toplayın", "Her risk için 'bu gerçekleşirse ilk 24 saatte ne olur' sorusunu yazılı yanıtlayın", "Belgeyi yılda bir güncellemeyi takvime ekleyin"],
+    },
+    {
+      scenario: "Temel risk listeniz var ama olasılık/etki analizi eksik — hangi riskin öncelikli olduğu net değil. Sıradaki adım, ISO 22301'in İş Etki Analizi (BIA, madde 8.2.2) mantığına geçiş: her riski, işi ne kadar sürede durdurabileceğine göre sıralamak.",
+      actions: ["Her risk için 'olursa üretim/hizmet kaç saat/gün durur' sorusunu yanıtlayın", "En yüksek etkili 3 riski önceliklendirip özel önlem planı yazın", "Sigorta poliçenizin bu riskleri kapsayıp kapsamadığını kontrol edin"],
+    },
+    {
+      scenario: "Yazılı ve düzenli gözden geçirilen bir risk değerlendirmeniz var — birçok KOBİ'nin ulaşmadığı bir olgunluk seviyesi. Sıradaki adım, değerlendirmeyi yalnızca içeriden değil dış veriyle (AFAD verileri, sigorta risk mühendisliği raporu) doğrulamak.",
+      actions: ["Sigorta şirketinizden bir risk mühendisliği değerlendirmesi talep edin", "Kritik tedarikçilerinizin kendi risk değerlendirmesi olup olmadığını sorun", "Risk listesini yıllık takvimin yanı sıra önemli bir olay sonrası da güncelleyin"],
+    },
+    {
+      scenario: "Kapsamlı ve dış veriyle desteklenmiş bir risk haritanız var — bu seviyeyi korumak asıl zorluk. Sıradaki adım, bu disiplini tedarik zincirinize de yaymak.",
+      actions: ["Kritik tedarikçilerinizden kendi risk değerlendirmelerini paylaşmalarını isteyin", "Risk haritanızı yönetim/ortaklar toplantısında yıllık gündem maddesi yapın", "Mevcut olgunluğunuz uygun görünüyor — ISO 22301 sertifikasyonunu değerlendirin"],
+    },
+  ],
+  emergency: [
+    {
+      scenario: "Yazılı bir acil durum planınız yok — bu yalnızca bir hazırlık eksikliği değil, 6331 sayılı Kanun'un 11 ve 12. maddelerine dayanan yasal bir yükümlülüğün karşılanmadığı anlamına da geliyor. Yönetmeliğin 7. maddesi planın hangi aşamalardan geçerek hazırlanacağını adım adım tarif eder.",
+      actions: ["Çalışma ve Sosyal Güvenlik Bakanlığı'nın 'Acil Durum Planı Hazırlama Rehberi'ni indirin", "İşyeri hekiminiz/İSG uzmanınız varsa plan hazırlığını onunla başlatın", "Yoksa bir OSGB'den bu konuda destek alın — yasal zorunluluk"],
+    },
+    {
+      scenario: "Bir taslak var ama resmi değil ve muhtemelen çalışanlarla paylaşılmadı. Yönetmelik madde 19 gereği çalışanların acil durumlar hakkında bilgilendirilmesi zorunlu — plan ne kadar iyi olursa olsun, bilinmiyorsa işe yaramaz.",
+      actions: ["Taslağı resmi hale getirip tarih atın", "Tüm çalışanlara en az bir kez sözlü + yazılı bilgilendirme yapın", "Yeni işe başlayanlara oryantasyonda planı anlatmayı standart hale getiren"],
+    },
+    {
+      scenario: "Planınız var ama güncel değil veya yeterince paylaşılmamış. Yönetmelik madde 13, planın yalnızca yazılı olmasını değil, düzenli tatbikatla test edilmesini de şart koşar (diğer işyerleri için en geç yılda bir).",
+      actions: ["Plan üzerindeki tarihleri ve sorumlu isimlerini güncelleyin", "Yılda bir kez basit bir tahliye tatbikatı planlayın", "Tatbikat sonrası Yönetmelik Ek-2'deki örneğe benzer bir değerlendirme formu doldurun"],
+    },
+    {
+      scenario: "Plan var, çalışanlara duyurulmuş — iyi bir seviyedesiniz. Sıradaki adım, planı tek seferlik bir belge değil, yaşayan bir doküman haline getirmek.",
+      actions: ["Tatbikat sonrası çıkan eksiklikleri plana işleyin (Yönetmelik md.13/3)", "Yaşlı, engelli veya hamile çalışan/ziyaretçi için özel tahliye desteği tanımlayın (md.8/4)", "Planı yalnızca yılda bir değil, önemli bir bina/süreç değişikliğinde de gözden geçirin"],
+    },
+    {
+      scenario: "Planınız güncel, mevzuata uygun ve düzenli test ediliyor — bu seviyeyi sürdürmek asıl hedef olmalı.",
+      actions: ["Farklı senaryolarla (yangın, deprem, siber olay) yılda birden fazla tatbikat yapmayı değerlendirin", "İş hanı/OSB'deyseniz komşu işyerleriyle ortak tatbikat imkanını araştırın", "Planı yeni çalışan oryantasyonunun standart bir kontrol listesi parçası yapın"],
+    },
+  ],
+  it: [
+    {
+      scenario: "Kritik verileriniz yedeklenmiyor — bir donanım arızası, fidye yazılımı veya çalınma durumunda geri dönüşü olmayan bir kayıp riski var. NIST SP 800-34'ün en temel önerisi budur: hiçbir BT sürekliliği yedekleme olmadan mümkün değildir.",
+      actions: ["Bu hafta içinde muhasebe ve müşteri verilerinizin bir kopyasını harici bir diske alın", "Ücretsiz/düşük maliyetli bulut yedekleme (Drive, OneDrive vb.) için otomatik senkronizasyon kurun", "Hangi verinin 'kritik' olduğuna karar verin — her şeyi değil önce en önemlisini yedekleyin"],
+    },
+    {
+      scenario: "Yedekleme yapılıyor ama düzensiz ve manuel — bir olay anında elinizdeki yedek muhtemelen güncel olmayacak. Hedef, yedeklemeyi insan hafızasına değil otomasyona bağlamak.",
+      actions: ["Yedeklemeyi otomatik/zamanlanmış hale getirin (günlük veya haftalık)", "Yedeğin gerçekten alındığını doğrulayan basit bir kontrol rutini kurun", "Kimin ne zaman yedek aldığını kaydeden basit bir kayıt tutun"],
+    },
+    {
+      scenario: "Düzenli yedekleme var ama tek konumda saklanıyor — bir yangın veya hırsızlık hem orijinali hem yedeği aynı anda götürebilir. Yaygın kabul gören '3-2-1 kuralı' (3 kopya, 2 farklı ortam, 1'i uzak konum) burada devreye girer.",
+      actions: ["Yedeğin en az bir kopyasını fiziksel olarak farklı bir konumda (bulut veya başka bina) tutun", "Geri yükleme işlemini yılda bir deneyerek yedeğin gerçekten çalıştığını doğrulayın", "'Ne kadar sürede sisteme geri döneriz' sorusuna kaba bir yanıt yazın"],
+    },
+    {
+      scenario: "Düzenli, çoklu konumlu yedekleme var — iyi bir olgunluk seviyesi. Sıradaki adım, 'yedek var mı' sorusundan 'yedekten ne kadar sürede geri döneriz' sorusuna geçmek.",
+      actions: ["Bir kurtarma süresi hedefi (RTO) ve veri kaybı toleransı (RPO) belirleyin", "Yılda bir kez gerçek bir 'felaket senaryosu' tatbikatı (tam geri yükleme denemesi) yapın", "Kritik yazılımlarınızın lisans/erişim bilgilerini de yedek planına dahil edin"],
+    },
+    {
+      scenario: "Otomatik, çoklu konumlu yedekleme ve düzenli geri yükleme testleri yapıyorsunuz — NIST SP 800-34 çerçevesinin olgun bir uygulamasına yakınsınız.",
+      actions: ["BT sürekliliği planınızı kimin ne yapacağını da içeren tek bir dokümana bağlayın", "Siber sigorta kapsamınızı bu olgunluk seviyesine göre gözden geçirin", "Kritik bulut/yazılım tedarikçilerinizin kendi süreklilik garantilerini (SLA) kontrol edin"],
+    },
+  ],
+  supply: [
+    {
+      scenario: "Kritik girdileriniz için tek bir tedarikçiye bağımlısınız ve bu hiç sorgulanmamış. ISO 22301'in İş Etki Analizi mantığı tam olarak bunu sorar: 'bu tedarikçi bugün kesilirse işimiz kaç günde durur?'",
+      actions: ["En çok bağımlı olduğunuz 2-3 girdiyi/hizmeti listeleyin", "Her biri için 'alternatif var mı' sorusunu yanıtlayın (yoksa en büyük riskiniz budur)", "En kritik girdi için en az bir alternatif tedarikçiyle ön görüşme yapın"],
+    },
+    {
+      scenario: "Bağımlılıkların farkındasınız ama alternatif belirlenmedi — bilgi var, plan yok. Bu genelde ucuz ve hızlı kapatılabilecek bir boşluktur.",
+      actions: ["En kritik 1-2 girdi için somut bir alternatif tedarikçi bulun (bir fiyat teklifi bile yeterli başlangıç)", "Mevcut tedarikçinizle 'siz üretemezseniz ne olur' konusunu açıkça konuşun", "Küçük bir güvenlik stoku bütçelemeyi değerlendirin"],
+    },
+    {
+      scenario: "Bazı kritik girdiler için alternatif belirlendi — iyi bir başlangıç. ISO 22301 madde 8.2.2'nin istediği sonraki adım, bunu tüm öncelikli faaliyetlere yaymak ve resmi bir etki analizine dönüştürmek.",
+      actions: ["Kalan kritik girdiler için de alternatif arayışını tamamlayın", "Her kritik süreç için 'ne kadar sürede eski haline döneriz' sorusunu yazılı yanıtlayın", "En kritik müşterilerinizle olası bir gecikme durumunda nasıl iletişim kuracağınızı planlayın"],
+    },
+    {
+      scenario: "Kritik girdilerin çoğunda alternatif var — güçlü bir konumdasınız. Sıradaki adım, bunu resmi bir öncelik sıralamasına (hangi süreç önce kurtarılır) dönüştürmek.",
+      actions: ["BIA sonuçlarına göre süreçlerinizi 'önce / sonra kurtarılacak' şeklinde sıralayın", "Alternatif tedarikçilerle yıllık bir 'hazır olma' kontrolü yapın", "Güvenlik stoku seviyelerini kritiklik sıralamasına göre gözden geçirin"],
+    },
+    {
+      scenario: "Tüm kritik girdilerde alternatif ve güvenlik stoku politikanız var — bu, çoğu büyük kurumun bile tam oturtamadığı bir olgunluk seviyesi.",
+      actions: ["Bu disiplini yeni ürün/hizmet geliştirirken de standart bir adım haline getirin", "Alternatif tedarikçilerinizin kendi süreklilik planı olup olmadığını sorgulamaya başlayın", "Yıllık BIA güncellemesini yönetim gündemine sabit madde olarak ekleyin"],
+    },
+  ],
+  people: [
+    {
+      scenario: "Acil bir durumda çalışanlara nasıl ulaşacağınıza dair bir sisteminiz yok. ISO 22301 madde 8.4.3'ün altını çizdiği gibi, bir kriz anında en büyük risklerden biri iletişimin kopmasıdır.",
+      actions: ["Tüm çalışanların güncel telefon numaralarını tek bir listede toplayın", "Basit bir WhatsApp/SMS grubu oluşturun (kriz anı için)", "Bu listeyi kimin güncel tutacağını belirleyin"],
+    },
+    {
+      scenario: "İletişim kişisel telefonlar üzerinden, gayri resmi şekilde yürüyor — birileri hatırladığı için işliyor, sistemli değil.",
+      actions: ["Listeyi resmi bir belgeye dönüştürün ve İK dosyasında saklayın", "En az bir yedek iletişim kanalı belirleyin (telefon ulaşmazsa e-posta/SMS)", "Yeni işe başlayanları listeye eklemeyi standart oryantasyon adımı yapın"],
+    },
+    {
+      scenario: "Temel bir liste var ama güncel değil — bu, tam ihtiyaç anında en çok fark eden eksikliklerden biri.",
+      actions: ["Listeyi 6 ayda bir güncellemeyi takvime ekleyin", "Yedek bir iletişim kanalı (grup mesajı, acil durum panosu) kurun", "İlk yardım/tahliye sorumlularının isimlerini listeye ekleyin"],
+    },
+    {
+      scenario: "Güncel iletişim listeniz ve yedek kanalınız var — sağlam bir temel. Sonraki adım otomasyon.",
+      actions: ["Toplu SMS/anlık bildirim gönderebileceğiniz düşük maliyetli bir araç araştırın", "Yılda bir kez test mesajı göndererek listenin gerçekten çalıştığını doğrulayın", "Çalışan yakınları için de bir bilgilendirme kanalı düşünün"],
+    },
+    {
+      scenario: "Çok kanallı, otomatik bildirim sisteminiz var — bu seviyede asıl risk rehavet.",
+      actions: ["Sistemi yılda en az bir kez gerçek bir tatbikatla test edin", "Yeni teknolojik seçenekleri (acil durum bildirim uygulamaları) takip edin", "Bu altyapıyı yalnızca acil durumlarda değil, iş sürekliliği iletişiminde de kullanmayı değerlendirin"],
+    },
+  ],
+  testing: [
+    {
+      scenario: "Planınızı hiç test etmediniz — kağıt üzerinde iyi görünen bir plan, gerçek bir olayda genellikle beklenmedik şekilde çalışır. ISO 22301'in en çok atlanan ama en kritik maddesi budur: test edilmeyen plan, plan değildir.",
+      actions: ["Küçük başlayın: 30 dakikalık bir masabaşı (tabletop) tatbikatı planlayın", "En az bir kez gerçek bir tahliye denemesi yapın", "Tatbikat sonrası neyin işe yaramadığını yazılı not alın"],
+    },
+    {
+      scenario: "2 yıldan uzun süre önce bir test yapılmış — ekip değişmiş, mekan değişmiş, plan muhtemelen artık gerçeği yansıtmıyor.",
+      actions: ["Bu yıl içinde en az bir tatbikat planlayın", "Yönetmelik md.13'ün istediği asgari sıklık (yılda bir) için takvim hatırlatıcısı kurun", "Tatbikat tarihini ve sonuçlarını yazılı kaydetmeye başlayın"],
+    },
+    {
+      scenario: "Son 1-2 yılda bir kez test yapılmış — düzenli değil ama en azından bir alışkanlık başlamış.",
+      actions: ["Yıllık tatbikatı sabit bir takvim etkinliği haline getirin", "Tatbikat sonrası basit bir değerlendirme formu doldurun (Yönetmelik Ek-2 örnek alınabilir)", "Bulunan eksiklikleri bir sonraki tatbikata kadar kapatmayı hedef koyun"],
+    },
+    {
+      scenario: "Yılda bir düzenli tatbikat yapılıyor — sağlam bir alışkanlık. ISO 22301 madde 9-10'un istediği, bunu bir 'ders çıkarma' döngüsüne bağlamak.",
+      actions: ["Farklı senaryolar deneyin (her yıl aynısı yerine yangın/deprem/siber rotasyonu)", "Tatbikat sonuçlarını yönetim toplantısında kısa bir gündem maddesi yapın", "Geçmiş 2-3 tatbikatın sonuçlarını karşılaştırıp gelişim olup olmadığını görün"],
+    },
+    {
+      scenario: "Yılda birden fazla, farklı senaryolu tatbikat yapıyorsunuz — ISO 22301'in PUKÖ (Planla-Uygula-Kontrol Et-Önlem Al) döngüsünün olgun bir uygulaması bu.",
+      actions: ["Bu disiplini resmi bir ISO 22301 sertifikasyon başvurusuna dönüştürmeyi değerlendirin", "Tedarikçi ve iş ortaklarınızı da ortak tatbikatlara davet edin", "Sonuçları Çorlu TSO ile paylaşarak bölgesel afet hazırlığına katkı sağlayın"],
+    },
+  ],
 };
 
 function MethodologyModal({ onClose }) {
@@ -305,19 +435,26 @@ export default function App() {
   }, [answers]);
 
   const level = getLevel(overall);
-  const weakestDims = [...DIMENSIONS].sort((a, b) => byDim[a.key] - byDim[b.key]).slice(0, 3);
+  const weakestDims = [...DIMENSIONS]
+    .sort((a, b) => byDim[a.key] - byDim[b.key])
+    .slice(0, 3)
+    .map((d) => {
+      const dLevel = getLevel(byDim[d.key]);
+      const levelIndex = LEVELS.indexOf(dLevel);
+      return { ...d, dLevel, levelIndex, scenario: DIM_SCENARIOS[d.key][levelIndex] };
+    });
 
   const restart = () => { setAnswers({}); setQIndex(0); setStep("intro"); };
 
   return (
     <div className="h-screen w-screen bg-[#FAF9F6] text-slate-900 flex flex-col justify-between overflow-hidden relative" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       
-      {/* Font Injections: Space Grotesk (Başlıklar) & Plus Jakarta Sans (Gövde) */}
+      {/* Font Injections */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
       `}</style>
 
-      {/* Açık Renk Editoryal Duvar Kağıdı Deseni (Ince Izgara + Warm Tone Overlay) */}
+      {/* Açık Renk Mimari Duvar Kağıdı Deseni */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#FAF9F6] via-[#F5F3EF] to-[#EFECE6] pointer-events-none" />
       <div 
         className="absolute inset-0 pointer-events-none opacity-[0.04]"
@@ -468,16 +605,25 @@ export default function App() {
                 </div>
 
                 <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-3 border-b border-slate-900/10 pb-1">// ÖNCELİKLİ AKSİYONLAR</h3>
-                  <div className="space-y-3">
-                    {weakestDims.map((d, i) => (
+                  <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-3 border-b border-slate-900/10 pb-1">// ÖNCELİKLİ AKSİYONLAR VE SENARYO</h3>
+                  <div className="space-y-4">
+                    {weakestDims.map((d) => (
                       <div key={d.key} className="border-l-2 border-slate-900 pl-3 py-0.5">
-                        <div className="font-mono text-[10px] uppercase tracking-widest text-red-700 font-bold mb-0.5">
-                          0{i + 1}. {d.label}
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-red-700 font-bold">{d.label}</span>
+                          <span className="font-mono text-[9px] uppercase px-1.5 py-0.5 bg-slate-200 text-slate-800 font-bold">
+                            {d.dLevel.name}
+                          </span>
                         </div>
-                        <div className="text-xs font-medium text-slate-700 leading-snug">
-                          {DIM_RECS[d.key]}
-                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed mb-2">{d.scenario.scenario}</p>
+                        <ul className="space-y-1">
+                          {d.scenario.actions.map((act, i) => (
+                            <li key={i} className="text-[11px] text-slate-700 flex gap-1.5">
+                              <span className="font-mono text-slate-400 font-bold">0{i + 1}.</span>
+                              <span>{act}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     ))}
                   </div>
