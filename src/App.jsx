@@ -1,18 +1,9 @@
 import React, { useState, useMemo } from "react";
 
 /* ======================================================================
-   ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI
-   ------------------------------------------------------------------
-   Metodoloji ve dayanaklar (bkz. MethodologyModal içeriği):
-   - ISO 22301:2019 İş Sürekliliği Yönetim Sistemleri
-   - UNDRR Sendai Afet Risk Azaltma Çerçevesi 2015-2030 (4 öncelik alanı)
-   - 6331 sayılı İş Sağlığı ve Güvenliği Kanunu ve İşyerlerinde Acil
-     Durumlar Hakkında Yönetmelik kapsamındaki asgari yükümlülükler
-   - NIST SP 800-34 (Bilgi Sistemleri İçin Olağanüstü Durum Planlama
-     Rehberi) — BT sürekliliği boyutu için referans alınmıştır
+   ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (PROFESYONEL TAM EKRAN)
    ====================================================================== */
 
-/* ---------------- Değerlendirme boyutları ---------------- */
 const DIMENSIONS = [
   { key: "risk", label: "Risk & Tehlike Analizi", short: "Risk", ref: "ISO 22301 md.8.2 / Sendai Öncelik 1" },
   { key: "emergency", label: "Acil Durum Müdahale Planı", short: "Müdahale", ref: "6331 s. Kanun / İşyeri Acil Durum Yönetmeliği" },
@@ -22,12 +13,7 @@ const DIMENSIONS = [
   { key: "testing", label: "Tatbikat & Sürekli İyileştirme", short: "Tatbikat", ref: "ISO 22301 md.8.5 / md.9-10" },
 ];
 
-/* ---------------- Soru bankası ----------------
-   Her soru 5 kademeli, olgunluk seviyesi tanımlı seçeneklerle
-   (Likert "katılıyorum/katılmıyorum" yerine davranışsal ifade tercih
-   edildi — daha isabetli öz-değerlendirme sağlar). value: 1-5           */
 const QUESTIONS = [
-  // RISK
   {
     id: "r1", dim: "risk",
     text: "İşletmenizi etkileyebilecek afet ve kriz risklerini (deprem, yangın, sel, siber saldırı, tedarik kesintisi) ne ölçüde belirlediniz?",
@@ -61,8 +47,6 @@ const QUESTIONS = [
       "Her kritik bağımlılık için alternatif/yedek çözüm tanımlı",
     ],
   },
-
-  // EMERGENCY
   {
     id: "e1", dim: "emergency",
     text: "Yazılı bir acil durum ve afet müdahale planınız var mı?",
@@ -96,8 +80,6 @@ const QUESTIONS = [
       "Tam uyumlu, kontrol kayıtları tutuluyor ve denetime hazır",
     ],
   },
-
-  // IT / DATA
   {
     id: "i1", dim: "it",
     text: "Kritik iş verileriniz (muhasebe, müşteri, üretim kayıtları) düzenli olarak yedekleniyor mu?",
@@ -131,8 +113,6 @@ const QUESTIONS = [
       "Kapsamlı program var, sonuçlar ölçülüp iyileştiriliyor",
     ],
   },
-
-  // SUPPLY / OPERATION
   {
     id: "s1", dim: "supply",
     text: "Ana tedarikçinizde yaşanacak bir kesinti için alternatif tedarikçi veya stok planınız var mı?",
@@ -166,8 +146,6 @@ const QUESTIONS = [
       "Kapsamlı süreklilik planı var, düzenli test ediliyor",
     ],
   },
-
-  // PEOPLE
   {
     id: "p1", dim: "people",
     text: "Acil bir durumda çalışanlara/tedarikçilere hızlıca ulaşabileceğiniz bir iletişim sisteminiz (telefon zinciri, grup, SMS) var mı?",
@@ -201,8 +179,6 @@ const QUESTIONS = [
       "Çok kademeli yedekleme, düzenli test ediliyor",
     ],
   },
-
-  // TESTING
   {
     id: "t1", dim: "testing",
     text: "Acil durum planınızı en son ne zaman tatbikatla test ettiniz?",
@@ -238,13 +214,12 @@ const QUESTIONS = [
   },
 ];
 
-/* ---------------- Olgunluk seviyeleri (0-100 skor) ---------------- */
 const LEVELS = [
-  { min: 0, max: 20, name: "Habersiz / Reaktif", color: "#7C2D12", desc: "Afet ve kriz hazırlığı büyük ölçüde tesadüfe bırakılmış. Herhangi bir kesinti işletmeyi ciddi risk altında bırakabilir." },
-  { min: 21, max: 40, name: "Farkında / Başlangıç", color: "#B91C1C", desc: "Riskler kısmen biliniyor ama yazılı, sistematik bir hazırlık yok. İlk adım: temel riskleri ve kritik süreçleri yazılı hale getirmek." },
-  { min: 41, max: 60, name: "Gelişmekte", color: "#C2410C", desc: "Temel unsurlar (plan, yedekleme, roller) kısmen mevcut. Sıradaki öncelik: planları test etmek ve boşlukları kapatmak." },
-  { min: 61, max: 80, name: "Yönetilen", color: "#B45309", desc: "İş sürekliliği kurumsallaşmaya başlamış; düzenli gözden geçirme ve test var. İnce ayar ve kapsam genişletme aşaması." },
-  { min: 81, max: 100, name: "Dayanıklı / Optimize", color: "#0F766E", desc: "ISO 22301 ruhuna uygun, olgun bir yönetim sistemi. Sürekli iyileştirme döngüsü işliyor." },
+  { min: 0, max: 20, name: "Habersiz / Reaktif", color: "#991B1B", bg: "bg-red-50", desc: "Afet ve kriz hazırlığı büyük ölçüde tesadüfe bırakılmış. Herhangi bir kesinti işletmeyi ciddi risk altında bırakabilir." },
+  { min: 21, max: 40, name: "Farkında / Başlangıç", color: "#C2410C", bg: "bg-orange-50", desc: "Riskler kısmen biliniyor ama yazılı, sistematik bir hazırlık yok. İlk adım: temel riskleri ve kritik süreçleri yazılı hale getirmek." },
+  { min: 41, max: 60, name: "Gelişmekte", color: "#B45309", bg: "bg-amber-50", desc: "Temel unsurlar (plan, yedekleme, roller) kısmen mevcut. Sıradaki öncelik: planları test etmek ve boşlukları kapatmak." },
+  { min: 61, max: 80, name: "Yönetilen", color: "#047857", bg: "bg-emerald-50", desc: "İş sürekliliği kurumsallaşmaya başlamış; düzenli gözden geçirme ve test var. İnce ayar ve kapsam genişletme aşaması." },
+  { min: 81, max: 100, name: "Dayanıklı / Optimize", color: "#0F766E", bg: "bg-teal-50", desc: "ISO 22301 ruhuna uygun, olgun bir yönetim sistemi. Sürekli iyileştirme döngüsü işliyor." },
 ];
 
 const getLevel = (score) => LEVELS.find(l => score >= l.min && score <= l.max) || LEVELS[0];
@@ -258,9 +233,6 @@ const DIM_RECS = {
   testing: "Yılda en az bir kez masabaşı (tabletop) tatbikatı planlayın — düşük maliyetli, yüksek etkili bir adımdır.",
 };
 
-/* ======================================================================
-   Gauge — diğer üç Çorlu TSO aracıyla aynı geometri (cx110,cy120,r88)
-   ====================================================================== */
 function polar(angleDeg, r, cx = 110, cy = 120) {
   const rad = (angleDeg * Math.PI) / 180;
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
@@ -276,66 +248,60 @@ function Gauge({ value, color }) {
   const needle = polar(angle, 74);
   const ticks = [-180, -135, -90, -45, 0];
   return (
-    <svg viewBox="0 0 220 136" className="w-full max-w-[220px] mx-auto">
-      <path d={arcPath(-180, 0, 88)} fill="none" stroke="#E2E8F0" strokeWidth="11" strokeLinecap="round" />
-      <path d={arcPath(-180, angle, 88)} fill="none" stroke={color} strokeWidth="11" strokeLinecap="round" />
-      <g stroke="#94A3B8" strokeWidth="1.4">
+    <svg viewBox="0 0 220 136" className="w-full max-w-[200px] mx-auto drop-shadow-sm">
+      <path d={arcPath(-180, 0, 88)} fill="none" stroke="#E2E8F0" strokeWidth="12" strokeLinecap="round" />
+      <path d={arcPath(-180, angle, 88)} fill="none" stroke={color} strokeWidth="12" strokeLinecap="round" />
+      <g stroke="#94A3B8" strokeWidth="1.5">
         {ticks.map((t, i) => {
           const o = polar(t, 97), inr = polar(t, 105);
           return <line key={i} x1={o.x} y1={o.y} x2={inr.x} y2={inr.y} />;
         })}
       </g>
       <g>
-        <line x1="110" y1="120" x2={needle.x} y2={needle.y} stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
-        <circle cx="110" cy="120" r="6" fill="#0F172A" />
+        <line x1="110" y1="120" x2={needle.x} y2={needle.y} stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
+        <circle cx="110" cy="120" r="7" fill="#0F172A" />
       </g>
-      <text x="110" y="112" textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontSize="26" fontWeight="600" fill="#0F172A">
+      <text x="110" y="112" textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontSize="28" fontWeight="700" fill="#0F172A">
         {Math.round(value)}
       </text>
     </svg>
   );
 }
 
-/* ======================================================================
-   Metodoloji modalı
-   ====================================================================== */
 function MethodologyModal({ onClose }) {
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-7" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">Metodoloji &amp; Dayanaklar</h3>
-        <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
-          <div>
-            <p className="font-semibold text-slate-800 mb-1">ISO 22301:2019 — İş Sürekliliği Yönetim Sistemi</p>
-            <p>Risk değerlendirmesi, iş etki analizi (BIA), süreklilik stratejisi, plan geliştirme, tatbikat/test ve sürekli iyileştirme (PUKÖ) döngüsü bu standardın ana yapı taşlarıdır. Skorkartın 6 boyutu bu döngüyü esas alır.</p>
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fadeIn" onClick={onClose}>
+      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-8 shadow-2xl border border-slate-100" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl font-bold text-slate-900" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Metodoloji &amp; Dayanaklar</h3>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition">✕</button>
+        </div>
+        <div className="space-y-5 text-sm text-slate-600 leading-relaxed">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+            <p className="font-semibold text-slate-900 mb-1">ISO 22301:2019 — İş Sürekliliği Yönetim Sistemi</p>
+            <p>Risk değerlendirmesi, iş etki analizi (BIA), süreklilik stratejisi, plan geliştirme, tatbikat/test ve sürekli iyileştirme (PUKÖ) döngüsü bu standardın ana yapı taşlarıdır.</p>
           </div>
-          <div>
-            <p className="font-semibold text-slate-800 mb-1">UNDRR Sendai Afet Risk Azaltma Çerçevesi (2015-2030)</p>
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+            <p className="font-semibold text-slate-900 mb-1">UNDRR Sendai Afet Risk Azaltma Çerçevesi (2015-2030)</p>
             <p>Birleşmiş Milletler'in afet risk azaltma çerçevesinin dört önceliğinden ilki olan "afet riskini anlamak", Risk &amp; Tehlike Analizi boyutunun temelini oluşturur.</p>
           </div>
-          <div>
-            <p className="font-semibold text-slate-800 mb-1">6331 Sayılı İş Sağlığı ve Güvenliği Kanunu</p>
-            <p>Türkiye'de işverenlere acil durum planı hazırlama, tahliye düzenlemeleri yapma ve çalışanları bilgilendirme yükümlülüğü getiren temel mevzuattır; Acil Durum Müdahale Planı ve Çalışan Güvenliği boyutları bu yükümlülükleri esas alır.</p>
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+            <p className="font-semibold text-slate-900 mb-1">6331 Sayılı İş Sağlığı ve Güvenliği Kanunu</p>
+            <p>Türkiye'de işverenlere acil durum planı hazırlama, tahliye düzenlemeleri yapma ve çalışanları bilgilendirme yükümlülüğü getiren temel mevzuattır.</p>
           </div>
-          <div>
-            <p className="font-semibold text-slate-800 mb-1">NIST SP 800-34 — Olağanüstü Durum Planlama Rehberi</p>
-            <p>Bilgi sistemleri sürekliliği için ABD Ulusal Standartlar ve Teknoloji Enstitüsü'nün yayınladığı bu rehber, Veri &amp; BT Sürekliliği boyutundaki soruların çerçevesini oluşturur.</p>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-4 text-xs text-slate-500">
-            <strong>Not:</strong> Bu araç bir öz-değerlendirme aracıdır; ISO 22301 sertifikasyonu, resmi risk mühendisliği raporu veya AFAD/İSG denetimi yerine geçmez. Sonuçlar yalnızca yol haritası niteliğindedir.
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+            <p className="font-semibold text-slate-900 mb-1">NIST SP 800-34 — Olağanüstü Durum Planlama Rehberi</p>
+            <p>Bilgi sistemleri sürekliliği için ABD Ulusal Standartlar ve Teknoloji Enstitüsü'nün yayınladığı bu rehber, Veri &amp; BT Sürekliliği boyutunun çerçevesini oluşturur.</p>
           </div>
         </div>
-        <button onClick={onClose} className="mt-6 w-full bg-slate-900 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-slate-800 transition">
-          Kapat
+        <button onClick={onClose} className="mt-8 w-full bg-slate-900 text-white rounded-2xl py-3.5 text-sm font-semibold hover:bg-slate-800 transition shadow-lg shadow-slate-900/10">
+          Anladım, Kapat
         </button>
       </div>
     </div>
   );
 }
 
-/* ======================================================================
-   Ana uygulama
-   ====================================================================== */
 export default function App() {
   const [step, setStep] = useState("intro"); // intro | quiz | results
   const [qIndex, setQIndex] = useState(0);
@@ -361,7 +327,7 @@ export default function App() {
       const qs = QUESTIONS.filter((q) => q.dim === d.key);
       const vals = qs.map((q) => answers[q.id]).filter(Boolean);
       const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
-      dimScores[d.key] = ((avg - 1) / 4) * 100; // 1-5 -> 0-100
+      dimScores[d.key] = ((avg - 1) / 4) * 100;
     });
     const allVals = Object.values(answers);
     const overallAvg = allVals.length ? allVals.reduce((a, b) => a + b, 0) / allVals.length : 0;
@@ -370,165 +336,179 @@ export default function App() {
 
   const level = getLevel(overall);
   const weakestDims = [...DIMENSIONS].sort((a, b) => byDim[a.key] - byDim[b.key]).slice(0, 3);
-
   const restart = () => { setAnswers({}); setQIndex(0); setStep("intro"); };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
-      {/* Google Fonts index.html <head> içinde yükleniyor */}
-
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 print:hidden">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <div className="font-semibold text-sm">Çorlu Ticaret ve Sanayi Odası</div>
-            <div className="text-xs text-slate-500">Afet &amp; İş Sürekliliği Skorkartı</div>
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-slate-100/60 to-red-50/30 text-slate-900 flex flex-col justify-between selection:bg-red-700 selection:text-white" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
+      
+      {/* Profesyonel Header */}
+      <header className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 print:hidden">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-700 flex items-center justify-center text-white font-bold shadow-md shadow-red-700/20" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Ç
+            </div>
+            <div>
+              <div className="font-bold text-sm tracking-tight text-slate-900" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Çorlu Ticaret ve Sanayi Odası</div>
+              <div className="text-xs text-slate-500 font-medium">Afet &amp; İş Sürekliliği Skorkartı</div>
+            </div>
           </div>
           <button
             onClick={() => setShowMethodology(true)}
-            className="text-xs font-medium text-slate-500 border border-slate-200 rounded-full px-3 py-1.5 hover:border-slate-400 transition"
+            className="text-xs font-semibold text-slate-700 bg-slate-100/80 border border-slate-200/80 rounded-full px-4 py-2 hover:bg-slate-200 hover:border-slate-300 transition shadow-sm"
           >
-            Metodoloji
+            Metodoloji &amp; Dayanaklar
           </button>
         </div>
         {step === "quiz" && (
-          <div className="h-1 bg-slate-100">
-            <div className="h-1 bg-red-700 transition-all duration-300" style={{ width: `${progress}%` }} />
+          <div className="w-full h-1.5 bg-slate-100">
+            <div className="h-full bg-red-700 transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
           </div>
         )}
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-10">
-        {/* ---------------- INTRO ---------------- */}
-        {step === "intro" && (
-          <div className="text-center">
-            <span className="inline-block text-[11px] font-mono font-semibold tracking-wider text-red-800 bg-red-50 rounded-full px-3 py-1 mb-5">
-              ISO 22301 · SENDAİ ÇERÇEVESİ · 6331 S. KANUN
-            </span>
-            <h1 className="text-3xl font-semibold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              İşletmeniz bir kriz anında ne kadar dayanıklı?
-            </h1>
-            <p className="text-slate-600 max-w-xl mx-auto mb-8 leading-relaxed">
-              18 soruluk bu öz-değerlendirme, işletmenizin deprem, yangın, siber saldırı veya tedarik kesintisi
-              gibi olaylar karşısındaki hazırlığını 6 boyutta ölçer ve size özel bir yol haritası sunar. Yaklaşık 6-8 dakika sürer.
-            </p>
-            <div className="grid grid-cols-3 gap-4 max-w-md mx-auto mb-10 text-left">
-              {DIMENSIONS.slice(0, 3).map((d) => (
-                <div key={d.key} className="text-xs text-slate-500">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-700 mb-1.5" />
-                  {d.short}
-                </div>
-              ))}
-              {DIMENSIONS.slice(3).map((d) => (
-                <div key={d.key} className="text-xs text-slate-500">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-700 mb-1.5" />
-                  {d.short}
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => setStep("quiz")}
-              className="bg-red-700 text-white rounded-xl px-8 py-3.5 font-semibold hover:bg-red-800 transition"
-            >
-              Değerlendirmeyi Başlat →
-            </button>
-          </div>
-        )}
+      {/* Ana İçerik Alanı (Tam Ekran Genişleme) */}
+      <main className="w-full flex-1 flex items-center justify-center px-6 lg:px-12 py-12">
+        <div className="w-full max-w-5xl mx-auto">
 
-        {/* ---------------- QUIZ ---------------- */}
-        {step === "quiz" && currentQ && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-[11px] font-mono font-semibold tracking-wider text-red-800 bg-red-50 rounded-full px-3 py-1">
-                {DIMENSIONS.find((d) => d.key === currentQ.dim)?.short.toUpperCase()}
+          {/* ---------------- INTRO ---------------- */}
+          {step === "intro" && (
+            <div className="text-center max-w-3xl mx-auto animate-fadeIn">
+              <span className="inline-block text-xs font-mono font-bold tracking-widest text-red-700 bg-red-50 border border-red-100 rounded-full px-4 py-1.5 mb-6 shadow-sm">
+                ISO 22301 · SENDAİ ÇERÇEVESİ · 6331 S. KANUN
               </span>
-              <span className="text-xs text-slate-400 font-mono">{qIndex + 1} / {QUESTIONS.length}</span>
-            </div>
-            <h2 className="text-xl font-semibold mb-6 leading-snug">{currentQ.text}</h2>
-            <div className="space-y-2.5">
-              {currentQ.options.map((opt, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleAnswer(i + 1)}
-                  className={`w-full text-left px-5 py-3.5 rounded-xl border transition text-sm
-                    ${answers[currentQ.id] === i + 1
-                      ? "border-red-700 bg-red-50 text-red-900"
-                      : "border-slate-200 hover:border-slate-400 text-slate-700"}`}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-            {qIndex > 0 && (
-              <button onClick={() => setQIndex(qIndex - 1)} className="mt-6 text-xs text-slate-400 hover:text-slate-600">
-                ← Önceki soru
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* ---------------- RESULTS ---------------- */}
-        {step === "results" && (
-          <div>
-            <div className="text-center mb-8 print:mb-4">
-              <Gauge value={overall} color={level.color} />
-              <div className="text-sm font-mono font-semibold tracking-wider mt-1" style={{ color: level.color }}>
-                SEVİYE {LEVELS.indexOf(level) + 1} — {level.name.toUpperCase()}
-              </div>
-              <p className="text-slate-600 max-w-lg mx-auto mt-3 text-sm leading-relaxed">{level.desc}</p>
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
-              <h3 className="text-sm font-semibold text-slate-700 mb-4">Boyut Bazında Sonuçlar</h3>
-              <div className="space-y-3.5">
+              <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-6 text-slate-900 leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                İşletmeniz bir kriz anında ne kadar dayanıklı?
+              </h1>
+              <p className="text-slate-600 text-base lg:text-lg mb-10 leading-relaxed max-w-2xl mx-auto">
+                18 soruluk bu kapsamlı öz-değerlendirme; işletmenizin deprem, yangın, siber saldırı veya tedarik kesintisi gibi olaylar karşısındaki hazırlığını 6 boyutta analiz eder ve size özel stratejik yol haritası sunar.
+              </p>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto mb-12 text-left">
                 {DIMENSIONS.map((d) => (
-                  <div key={d.key}>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-600">{d.label}</span>
-                      <span className="font-mono font-semibold text-slate-500">{Math.round(byDim[d.key])}</span>
-                    </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-2 rounded-full"
-                        style={{ width: `${byDim[d.key]}%`, background: level.color }}
-                      />
-                    </div>
-                    <div className="text-[10px] text-slate-400 mt-1 font-mono">{d.ref}</div>
+                  <div key={d.key} className="bg-white/80 backdrop-blur border border-slate-200/80 rounded-2xl p-4 shadow-sm hover:shadow-md transition">
+                    <div className="w-2 h-2 rounded-full bg-red-700 mb-2" />
+                    <div className="text-xs font-semibold text-slate-800">{d.label}</div>
                   </div>
                 ))}
               </div>
-            </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-8">
-              <h3 className="text-sm font-semibold text-slate-700 mb-4">Öncelikli Gelişim Alanları</h3>
-              <div className="space-y-3">
-                {weakestDims.map((d) => (
-                  <div key={d.key} className="flex gap-3">
-                    <div className="w-1 rounded-full flex-shrink-0" style={{ background: level.color }} />
-                    <div>
-                      <div className="text-sm font-medium text-slate-800">{d.label}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{DIM_RECS[d.key]}</div>
-                    </div>
-                  </div>
+              <button
+                onClick={() => setStep("quiz")}
+                className="bg-red-700 hover:bg-red-800 text-white rounded-2xl px-10 py-4 font-bold text-base transition shadow-xl shadow-red-700/25 transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                Değerlendirmeyi Başlat →
+              </button>
+            </div>
+          )}
+
+          {/* ---------------- QUIZ (Tam Ekran Kart Tasarımı) ---------------- */}
+          {step === "quiz" && currentQ && (
+            <div className="w-full max-w-4xl mx-auto bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 lg:p-12 shadow-2xl shadow-slate-200/50 animate-fadeIn">
+              <div className="flex items-center justify-between mb-8">
+                <span className="text-xs font-mono font-bold tracking-wider text-red-700 bg-red-50 border border-red-100 rounded-full px-4 py-1.5">
+                  {DIMENSIONS.find((d) => d.key === currentQ.dim)?.label.toUpperCase()}
+                </span>
+                <span className="text-xs text-slate-400 font-mono font-semibold bg-slate-100 px-3 py-1 rounded-full">Soru {qIndex + 1} / {QUESTIONS.length}</span>
+              </div>
+
+              <h2 className="text-2xl lg:text-3xl font-bold mb-8 text-slate-900 leading-snug" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                {currentQ.text}
+              </h2>
+
+              <div className="space-y-3.5 mb-8">
+                {currentQ.options.map((opt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleAnswer(i + 1)}
+                    className={`w-full text-left px-6 py-4 rounded-2xl border transition text-sm lg:text-base font-medium flex items-center justify-between group
+                      ${answers[currentQ.id] === i + 1
+                        ? "border-red-700 bg-red-50/80 text-red-950 shadow-md ring-2 ring-red-700/20"
+                        : "border-slate-200/80 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-700 shadow-sm"}`}
+                  >
+                    <span>{opt}</span>
+                    <span className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs flex-shrink-0 transition
+                      ${answers[currentQ.id] === i + 1 ? "border-red-700 bg-red-700 text-white" : "border-slate-300 group-hover:border-slate-400"}`}>
+                      {answers[currentQ.id] === i + 1 ? "✓" : ""}
+                    </span>
+                  </button>
                 ))}
               </div>
-            </div>
 
-            <div className="flex gap-3 print:hidden">
-              <button onClick={() => window.print()} className="flex-1 bg-slate-900 text-white rounded-xl py-3 text-sm font-semibold hover:bg-slate-800 transition">
-                PDF Raporu İndir
-              </button>
-              <button onClick={restart} className="flex-1 border border-slate-200 rounded-xl py-3 text-sm font-semibold text-slate-600 hover:border-slate-400 transition">
-                Yeniden Başlat
-              </button>
+              {qIndex > 0 && (
+                <button onClick={() => setQIndex(qIndex - 1)} className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition flex items-center gap-1">
+                  ← Önceki soruya dön
+                </button>
+              )}
             </div>
+          )}
 
-            <p className="text-[11px] text-slate-400 text-center mt-6 leading-relaxed">
-              Bu sonuç bir öz-değerlendirmedir; ISO 22301 sertifikasyonu veya resmi denetimin yerine geçmez.
-            </p>
-          </div>
-        )}
+          {/* ---------------- RESULTS ---------------- */}
+          {step === "results" && (
+            <div className="w-full max-w-4xl mx-auto animate-fadeIn">
+              <div className="bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 lg:p-12 shadow-2xl shadow-slate-200/50 mb-8 text-center">
+                <Gauge value={overall} color={level.color} />
+                <div className="inline-block mt-4 px-4 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider" style={{ background: level.color + '15', color: level.color }}>
+                  SEVİYE {LEVELS.indexOf(level) + 1} — {level.name.toUpperCase()}
+                </div>
+                <p className="text-slate-600 max-w-xl mx-auto mt-4 text-sm lg:text-base leading-relaxed">{level.desc}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 shadow-xl shadow-slate-200/40">
+                  <h3 className="text-base font-bold text-slate-900 mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Boyut Bazında Sonuçlar</h3>
+                  <div className="space-y-4">
+                    {DIMENSIONS.map((d) => (
+                      <div key={d.key}>
+                        <div className="flex justify-between text-xs font-semibold mb-1.5">
+                          <span className="text-slate-700">{d.label}</span>
+                          <span className="font-mono text-slate-900">{Math.round(byDim[d.key])} / 100</span>
+                        </div>
+                        <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${byDim[d.key]}%`, background: level.color }} />
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-1 font-mono">{d.ref}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 shadow-xl shadow-slate-200/40 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Öncelikli Gelişim Alanları</h3>
+                    <div className="space-y-4">
+                      {weakestDims.map((d) => (
+                        <div key={d.key} className="flex gap-4 items-start p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                          <div className="w-1.5 h-10 rounded-full flex-shrink-0" style={{ background: level.color }} />
+                          <div>
+                            <div className="text-sm font-bold text-slate-900">{d.label}</div>
+                            <div className="text-xs text-slate-600 mt-0.5 leading-relaxed">{DIM_RECS[d.key]}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 mt-8 print:hidden">
+                    <button onClick={() => window.print()} className="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl py-3.5 text-sm font-bold transition shadow-lg shadow-slate-900/10">
+                      PDF Raporu İndir
+                    </button>
+                    <button onClick={restart} className="flex-1 border border-slate-300 hover:border-slate-400 bg-white rounded-2xl py-3.5 text-sm font-bold text-slate-700 transition shadow-sm">
+                      Yeniden Başlat
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
       </main>
+
+      {/* Profesyonel Footer */}
+      <footer className="w-full bg-white/60 border-t border-slate-200/80 py-6 text-center text-xs text-slate-400 font-medium">
+        <p>© 2026 Çorlu Ticaret ve Sanayi Odası — Afet &amp; İş Sürekliliği Skorkartı</p>
+      </footer>
 
       {showMethodology && <MethodologyModal onClose={() => setShowMethodology(false)} />}
     </div>
