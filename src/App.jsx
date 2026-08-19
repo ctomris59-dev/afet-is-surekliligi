@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 
 /* ======================================================================
-   ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (LUXURY & EDITORIAL)
+   ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (LIGHT EDITORIAL)
    ====================================================================== */
 
 const DIMENSIONS = [
@@ -235,37 +235,37 @@ const DIM_RECS = {
 
 function MethodologyModal({ onClose }) {
   return (
-    <div className="fixed inset-0 bg-[#080B10]/90 backdrop-blur-md flex items-center justify-center p-6 z-50" onClick={onClose}>
-      <div className="bg-[#0F141C] border border-slate-700/60 rounded-2xl max-w-xl w-full max-h-[85vh] overflow-y-auto p-8 md:p-12 text-slate-200 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between mb-8 pb-4 border-b border-slate-700/60">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 z-50" onClick={onClose}>
+      <div className="bg-[#FAF9F6] border border-slate-900 max-w-xl w-full max-h-[85vh] overflow-y-auto p-8 md:p-12 text-slate-900 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-8 pb-4 border-b border-slate-900">
           <div>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-red-500 block mb-1">DOKÜMAN #01</span>
-            <h3 className="text-xl font-bold tracking-wider text-white uppercase" style={{ fontFamily: "'Cinzel', serif" }}>Metodoloji &amp; Dayanaklar</h3>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500 block mb-1">DOKÜMAN #01</span>
+            <h3 className="text-xl font-bold tracking-tight uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Metodoloji &amp; Dayanaklar</h3>
           </div>
-          <button onClick={onClose} className="font-mono text-xs uppercase text-slate-400 hover:text-white transition">
+          <button onClick={onClose} className="font-mono text-xs uppercase text-slate-500 hover:text-slate-900 transition">
             [KAPAT]
           </button>
         </div>
-        <div className="space-y-6 text-xs leading-relaxed" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <div className="space-y-6 text-xs leading-relaxed" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           <div>
-            <p className="font-mono text-[10px] text-red-500 uppercase font-bold mb-0.5">// 01 STANDARDİZASYON</p>
-            <p className="font-bold text-sm text-white mb-1">ISO 22301:2019 — İş Sürekliliği Yönetim Sistemi</p>
-            <p className="text-slate-400">Risk değerlendirmesi, iş etki analizi (BIA), süreklilik stratejisi, plan geliştirme, tatbikat/test ve PUKÖ döngüsü bu standardın ana yapı taşlarıdır.</p>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// 01 STANDARDİZASYON</p>
+            <p className="font-bold text-sm text-slate-900 mb-1">ISO 22301:2019 — İş Sürekliliği Yönetim Sistemi</p>
+            <p className="text-slate-600">Risk değerlendirmesi, iş etki analizi (BIA), süreklilik stratejisi, plan geliştirme, tatbikat/test ve PUKÖ döngüsü bu standardın ana yapı taşlarıdır.</p>
           </div>
           <div>
-            <p className="font-mono text-[10px] text-red-500 uppercase font-bold mb-0.5">// 02 AFET RİSKİ</p>
-            <p className="font-bold text-sm text-white mb-1">UNDRR Sendai Afet Risk Azaltma Çerçevesi (2015-2030)</p>
-            <p className="text-slate-400">BM çerçevesinin ilk önceliği olan "afet riskini anlamak", Risk &amp; Tehlike Analizi boyutunun temelini oluşturur.</p>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// 02 AFET RİSKİ</p>
+            <p className="font-bold text-sm text-slate-900 mb-1">UNDRR Sendai Afet Risk Azaltma Çerçevesi (2015-2030)</p>
+            <p className="text-slate-600">BM çerçevesinin ilk önceliği olan "afet riskini anlamak", Risk &amp; Tehlike Analizi boyutunun temelini oluşturur.</p>
           </div>
           <div>
-            <p className="font-mono text-[10px] text-red-500 uppercase font-bold mb-0.5">// 03 YASAL MEVZUAT</p>
-            <p className="font-bold text-sm text-white mb-1">6331 Sayılı İş Sağlığı ve Güvenliği Kanunu</p>
-            <p className="text-slate-400">Acil durum planı hazırlama, tahliye düzenlemeleri yapma ve çalışanları bilgilendirme yükümlülüklerini esas alır.</p>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// 03 YASAL MEVZUAT</p>
+            <p className="font-bold text-sm text-slate-900 mb-1">6331 Sayılı İş Sağlığı ve Güvenliği Kanunu</p>
+            <p className="text-slate-600">Acil durum planı hazırlama, tahliye düzenlemeleri yapma ve çalışanları bilgilendirme yükümlülüklerini esas alır.</p>
           </div>
           <div>
-            <p className="font-mono text-[10px] text-red-500 uppercase font-bold mb-0.5">// 04 BT SÜREKLİLİĞİ</p>
-            <p className="font-bold text-sm text-white mb-1">NIST SP 800-34 — Olağanüstü Durum Planlama Rehberi</p>
-            <p className="text-slate-400">Bilgi sistemleri sürekliliği için ABD Ulusal Standartlar Enstitüsü'nün rehberini temel alır.</p>
+            <p className="font-mono text-[10px] text-red-700 uppercase font-bold mb-0.5">// 04 BT SÜREKLİLİĞİ</p>
+            <p className="font-bold text-sm text-slate-900 mb-1">NIST SP 800-34 — Olağanüstü Durum Planlama Rehberi</p>
+            <p className="text-slate-600">Bilgi sistemleri sürekliliği için ABD Ulusal Standartlar Enstitüsü'nün rehberini temel alır.</p>
           </div>
         </div>
       </div>
@@ -310,34 +310,34 @@ export default function App() {
   const restart = () => { setAnswers({}); setQIndex(0); setStep("intro"); };
 
   return (
-    <div className="h-screen w-screen bg-[#080B10] text-slate-100 flex flex-col justify-between overflow-hidden relative" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="h-screen w-screen bg-[#FAF9F6] text-slate-900 flex flex-col justify-between overflow-hidden relative" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       
-      {/* Font Injection: Cinzel & Outfit */}
+      {/* Font Injections: Space Grotesk (Başlıklar) & Plus Jakarta Sans (Gövde) */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
       `}</style>
 
-      {/* Arka Plan Duvar Kağıdı Katmanları: Işık Süzmesi & Mikro Mimari Izgara */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-red-950/20 via-[#080B10] to-[#080B10] pointer-events-none" />
+      {/* Açık Renk Editoryal Duvar Kağıdı Deseni (Ince Izgara + Warm Tone Overlay) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#FAF9F6] via-[#F5F3EF] to-[#EFECE6] pointer-events-none" />
       <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        className="absolute inset-0 pointer-events-none opacity-[0.04]"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40' stroke='%3C%23FFFFFF%3E' stroke-width='0.8'/%3E%3C/g%3E%3C/svg%3E")`
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z' fill='%3C%23000000%3E'/%3E%3C/g%3E%3C/svg%3E")`
         }}
       />
 
       {/* Header */}
-      <header className="border-b border-slate-800/60 px-8 py-5 flex-shrink-0 relative z-10 bg-[#080B10]/80 backdrop-blur-md print:hidden">
+      <header className="border-b border-slate-900/10 px-8 py-5 flex-shrink-0 relative z-10 bg-[#FAF9F6]/80 backdrop-blur-md print:hidden">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-red-500 font-bold block">KURUMSAL SKORKART</span>
-            <h1 className="font-bold text-base md:text-lg tracking-wider text-white uppercase" style={{ fontFamily: "'Cinzel', serif" }}>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-red-700 font-bold block">KURUMSAL SKORKART</span>
+            <h1 className="font-bold text-base md:text-lg tracking-tight text-slate-900 uppercase" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Çorlu Ticaret ve Sanayi Odası
             </h1>
           </div>
           <button
             onClick={() => setShowMethodology(true)}
-            className="font-mono text-[11px] uppercase tracking-widest border border-slate-700/80 rounded-lg px-4 py-2 hover:bg-slate-800 hover:border-slate-500 transition duration-200 text-slate-300"
+            className="font-mono text-[11px] uppercase tracking-widest border border-slate-900 rounded-none px-4 py-2 hover:bg-slate-900 hover:text-white transition duration-200 text-slate-800"
           >
             METODOLOJİ
           </button>
@@ -352,30 +352,30 @@ export default function App() {
           {step === "intro" && (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
               <div className="md:col-span-8">
-                <span className="font-mono text-[11px] uppercase tracking-widest text-red-500 block mb-3 font-bold">
+                <span className="font-mono text-[11px] uppercase tracking-widest text-red-700 block mb-3 font-bold">
                   [ ISO 22301 · SENDAİ ÇERÇEVESİ · 6331 S. KANUN ]
                 </span>
-                <h2 className="text-3xl md:text-5xl font-bold tracking-normal text-white uppercase leading-tight mb-4" style={{ fontFamily: "'Cinzel', serif" }}>
+                <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 uppercase leading-none mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                   İşletmeniz bir kriz anında ne kadar dayanıklı?
                 </h2>
-                <p className="text-slate-400 text-sm md:text-base font-light max-w-xl leading-relaxed">
-                  18 soruluk bu profesyonel öz-değerlendirme; kurumunuzun afet, siber kriz ve tedarik kesintilerine karşı olgunluk seviyesini ölçer.
+                <p className="text-slate-600 text-sm md:text-base font-normal max-w-xl leading-relaxed">
+                  18 soruluk bu editoryal öz-değerlendirme; kurumunuzun afet, siber kriz ve tedarik kesintilerine karşı olgunluk seviyesini ölçer.
                 </p>
               </div>
 
-              <div className="md:col-span-4 border-t md:border-t-0 md:border-l border-slate-800/80 pt-6 md:pt-0 md:pl-8 flex flex-col justify-between">
-                <div className="space-y-2 font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-6">
+              <div className="md:col-span-4 border-t md:border-t-0 md:border-l border-slate-900/10 pt-6 md:pt-0 md:pl-8 flex flex-col justify-between">
+                <div className="space-y-2 font-mono text-[11px] uppercase tracking-widest text-slate-500 mb-6">
                   {DIMENSIONS.map((d, i) => (
-                    <div key={d.key} className="flex justify-between border-b border-slate-800/40 pb-1.5">
+                    <div key={d.key} className="flex justify-between border-b border-slate-900/10 pb-1.5">
                       <span>0{i + 1}. {d.short}</span>
-                      <span className="text-red-500">✓</span>
+                      <span className="text-slate-900 font-bold">✓</span>
                     </div>
                   ))}
                 </div>
 
                 <button
                   onClick={() => setStep("quiz")}
-                  className="w-full bg-red-700 hover:bg-red-600 text-white font-bold text-xs uppercase tracking-widest py-4 px-6 rounded-xl transition duration-300 text-center shadow-lg shadow-red-950/40"
+                  className="w-full bg-slate-900 hover:bg-red-700 text-white font-mono text-xs uppercase tracking-widest py-4 px-6 transition duration-300 text-center font-bold"
                 >
                   DEĞERLENDİRMEYİ BAŞLAT →
                 </button>
@@ -387,12 +387,12 @@ export default function App() {
           {step === "quiz" && currentQ && (
             <div className="max-w-3xl mx-auto flex flex-col justify-between h-auto">
               <div>
-                <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-800/60 pb-2">
-                  <span className="text-red-500 font-bold">// BOYUT: {DIMENSIONS.find((d) => d.key === currentQ.dim)?.label.toUpperCase()}</span>
+                <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-widest text-slate-500 mb-4 border-b border-slate-900/10 pb-2">
+                  <span className="text-red-700 font-bold">// BOYUT: {DIMENSIONS.find((d) => d.key === currentQ.dim)?.label.toUpperCase()}</span>
                   <span>SORU {qIndex + 1} / {QUESTIONS.length}</span>
                 </div>
 
-                <h2 className="text-lg md:text-xl font-semibold text-white uppercase leading-snug mb-5" style={{ fontFamily: "'Cinzel', serif" }}>
+                <h2 className="text-lg md:text-xl font-bold text-slate-900 uppercase leading-snug mb-5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                   {currentQ.text}
                 </h2>
 
@@ -401,12 +401,12 @@ export default function App() {
                     <button
                       key={i}
                       onClick={() => handleAnswer(i + 1)}
-                      className="w-full text-left p-4 bg-[#0F141C]/80 border border-slate-800/80 rounded-xl hover:border-red-600/80 hover:bg-slate-900 transition duration-150 flex items-center gap-4 group"
+                      className="w-full text-left p-4 bg-white/80 border border-slate-900/15 hover:border-slate-900 hover:bg-slate-900 hover:text-white transition duration-150 flex items-center gap-4 group"
                     >
-                      <span className="font-mono text-[11px] uppercase tracking-widest text-slate-500 group-hover:text-red-500 font-bold">
+                      <span className="font-mono text-[11px] uppercase tracking-widest text-slate-400 group-hover:text-red-500 font-bold">
                         [0{i + 1}]
                       </span>
-                      <span className="text-xs md:text-sm font-medium text-slate-200 tracking-tight">
+                      <span className="text-xs md:text-sm font-medium tracking-tight">
                         {opt}
                       </span>
                     </button>
@@ -418,7 +418,7 @@ export default function App() {
                 <div className="mt-4">
                   <button
                     onClick={() => setQIndex(qIndex - 1)}
-                    className="font-mono text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-300 transition"
+                    className="font-mono text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-900 transition"
                   >
                     ← ÖNCEKİ SORUYA DÖN
                   </button>
@@ -430,37 +430,37 @@ export default function App() {
           {/* ---------------- RESULTS ---------------- */}
           {step === "results" && (
             <div className="max-w-4xl mx-auto overflow-y-auto max-h-[75vh] pr-2">
-              <div className="border-b border-slate-800/80 pb-6 mb-6">
+              <div className="border-b border-slate-900/10 pb-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                   <div className="md:col-span-8">
-                    <span className="font-mono text-[11px] uppercase tracking-widest text-red-500 block mb-1 font-bold">// NİHAİ DEĞERLENDİRME</span>
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight uppercase text-white" style={{ fontFamily: "'Cinzel', serif" }}>
+                    <span className="font-mono text-[11px] uppercase tracking-widest text-red-700 block mb-1 font-bold">// NİHAİ DEĞERLENDİRME</span>
+                    <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight uppercase text-slate-900" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {level.name}
                     </h2>
                   </div>
                   <div className="md:col-span-4 flex flex-col md:items-end justify-end">
-                    <div className="font-mono text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-none">
-                      {Math.round(overall)}<span className="text-base text-slate-500">/100</span>
+                    <div className="font-mono text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-none">
+                      {Math.round(overall)}<span className="text-base text-slate-400">/100</span>
                     </div>
                   </div>
                 </div>
-                <p className="text-slate-400 text-sm mt-3 max-w-2xl leading-relaxed">
+                <p className="text-slate-600 text-sm mt-3 max-w-2xl leading-relaxed">
                   {level.desc}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                 <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-500 mb-3 border-b border-slate-800/60 pb-1">// BOYUT BAZLI ANALİZ</h3>
+                  <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-3 border-b border-slate-900/10 pb-1">// BOYUT BAZLI ANALİZ</h3>
                   <div className="space-y-2.5">
                     {DIMENSIONS.map((d) => (
-                      <div key={d.key} className="border-b border-slate-800/40 pb-2">
+                      <div key={d.key} className="border-b border-slate-900/10 pb-2">
                         <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-1">
-                          <span className="font-bold text-slate-300">{d.label}</span>
+                          <span className="font-bold text-slate-900">{d.label}</span>
                           <span className="text-slate-500">%{Math.round(byDim[d.key])}</span>
                         </div>
-                        <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
-                          <div className="bg-red-700 h-1.5 transition-all duration-1000" style={{ width: `${byDim[d.key]}%` }} />
+                        <div className="w-full bg-slate-200 h-1.5 rounded-none overflow-hidden">
+                          <div className="bg-slate-900 h-1.5 transition-all duration-1000" style={{ width: `${byDim[d.key]}%` }} />
                         </div>
                       </div>
                     ))}
@@ -468,14 +468,14 @@ export default function App() {
                 </div>
 
                 <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-500 mb-3 border-b border-slate-800/60 pb-1">// ÖNCELİKLİ AKSİYONLAR</h3>
+                  <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-3 border-b border-slate-900/10 pb-1">// ÖNCELİKLİ AKSİYONLAR</h3>
                   <div className="space-y-3">
                     {weakestDims.map((d, i) => (
-                      <div key={d.key} className="border-l-2 border-red-700 pl-3 py-0.5">
-                        <div className="font-mono text-[10px] uppercase tracking-widest text-red-500 font-bold mb-0.5">
+                      <div key={d.key} className="border-l-2 border-slate-900 pl-3 py-0.5">
+                        <div className="font-mono text-[10px] uppercase tracking-widest text-red-700 font-bold mb-0.5">
                           0{i + 1}. {d.label}
                         </div>
-                        <div className="text-xs font-medium text-slate-300 leading-snug">
+                        <div className="text-xs font-medium text-slate-700 leading-snug">
                           {DIM_RECS[d.key]}
                         </div>
                       </div>
@@ -487,13 +487,13 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 print:hidden">
                 <button
                   onClick={() => window.print()}
-                  className="bg-red-700 hover:bg-red-600 text-white font-mono text-xs uppercase tracking-widest py-3.5 px-6 rounded-xl transition duration-200 font-bold shadow-lg shadow-red-950/40"
+                  className="bg-slate-900 hover:bg-red-700 text-white font-mono text-xs uppercase tracking-widest py-3.5 px-6 transition duration-200 font-bold"
                 >
                   PDF RAPORU İNDİR →
                 </button>
                 <button
                   onClick={restart}
-                  className="border border-slate-700 hover:bg-slate-800 text-slate-300 font-mono text-xs uppercase tracking-widest py-3.5 px-6 rounded-xl transition duration-200 font-bold"
+                  className="border border-slate-900 hover:bg-slate-900 hover:text-white text-slate-900 font-mono text-xs uppercase tracking-widest py-3.5 px-6 transition duration-200 font-bold"
                 >
                   YENİDEN BAŞLAT
                 </button>
@@ -505,7 +505,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/60 px-8 py-3 font-mono text-[10px] uppercase tracking-widest text-slate-500 flex justify-between items-center flex-shrink-0 relative z-10 bg-[#080B10]/80 backdrop-blur-md print:hidden">
+      <footer className="border-t border-slate-900/10 px-8 py-3 font-mono text-[10px] uppercase tracking-widest text-slate-500 flex justify-between items-center flex-shrink-0 relative z-10 bg-[#FAF9F6]/80 backdrop-blur-md print:hidden">
         <span>ÇORLU TSO © 2026</span>
         <span>AFET &amp; İŞ SÜREKLİLİĞİ SKORKARTI</span>
       </footer>
