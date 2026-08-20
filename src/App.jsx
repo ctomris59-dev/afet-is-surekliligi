@@ -747,7 +747,7 @@ export default function App() {
       <main className={`max-w-5xl mx-auto px-6 py-4 flex-1 w-full relative z-10 min-h-0 overflow-y-auto ${
         isCenteredScreen ? "flex items-center justify-center" : ""
       }`}>
-        <div className="w-full">
+        <div className={`w-full ${step === "results" ? "h-full" : ""}`}>
 
           {/* ---------------- INTRO ---------------- */}
           {step === "intro" && (
@@ -959,12 +959,12 @@ export default function App() {
                 <div className="md:col-span-5 bg-white border border-slate-900/10 p-3 flex flex-col min-h-0">
                   <div className="grid grid-cols-2 gap-2 flex-shrink-0 border-b border-slate-900/10 pb-2 mb-2">
                     <div className="text-center">
-                      <Gauge value={overall} color={level.color} maxWidth={130} />
+                      <Gauge value={overall} color={level.color} maxWidth={170} />
                       <div className="font-mono text-[8px] uppercase tracking-widest text-slate-400 mt-0.5">GENEL SKOR</div>
                     </div>
-                    <RadarChart byDim={byDim} color={level.color} maxWidth={150} />
+                    <RadarChart byDim={byDim} color={level.color} maxWidth={190} />
                   </div>
-                  <div className="space-y-1.5 overflow-y-auto min-h-0">
+                  <div className="space-y-2.5 overflow-y-auto min-h-0 flex-1 flex flex-col justify-center">
                     {DIMENSIONS.map((d) => (
                       <div key={d.key}>
                         <div className="flex justify-between font-mono text-[9px] uppercase tracking-widest mb-0.5">
