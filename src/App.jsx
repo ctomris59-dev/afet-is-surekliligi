@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { supabase } from "./lib/supabaseClient";
+import { generateAfetPdfReport } from "./lib/pdfReport";
 
 /* ======================================================================
    ÇORLU TSO — AFET & İŞ SÜREKLİLİĞİ SKORKARTI (LIGHT EDITORIAL FULLSCREEN)
@@ -404,6 +405,104 @@ function MethodologyModal({ onClose }) {
   );
 }
 
+/* ---------------- Gauge (0-100) ---------------- */
+function Gauge({ value, color = "#0F172A" }) {
+  const size = 220;
+  const cx = size / 2;
+  const cy = size / 2 + 10;
+  const r = 88;
+  const startAngle = -180;
+  const endAngle = 0;
+  const pct = Math.max(0, Math.min(1, value / 100));
+  const needleAngle = startAngle + pct * (endAngle - startAngle);
+
+  const polar = (angleDeg, radius) => {
+    const rad = (angleDeg * Math.PI) / 180;
+    return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)];
+  };
+  const arcPath = (a0, a1, radius) => {
+    const [x0, y0] = polar(a0, radius);
+    const [x1, y1] = polar(a1, radius);
+    const large = a1 - a0 > 180 ? 1 : 0;
+    return `M ${x0} ${y0} A ${radius} ${radius} 0 ${large} 1 ${x1} ${y1}`;
+  };
+  const [nx, ny] = polar(needleAngle, r - 14);
+
+  return (
+    <svg viewBox={`0 0 ${size} ${size * 0.62}`} width="100%" style={{ maxWidth: 220, display: "block", margin: "0 auto" }}>
+      <path d={arcPath(startAngle, endAngle, r)} fill="none" stroke="#E2E8F0" strokeWidth="12" strokeLinecap="round" />
+      <path d={arcPath(startAngle, needleAngle, r)} fill="none" stroke={color} strokeWidth="12" strokeLinecap="round" />
+      <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
+      <circle cx={cx} cy={cy} r="6" fill="#0F172A" />
+      <text x={cx} y={cy - 32} textAnchor="middle" fontSize="30" fontWeight="800" fill="#0F172A" fontFamily="'Space Grotesk', sans-serif">
+        {Math.round(value)}
+      </text>
+    </svg>
+  );
+}
+
+/* ---------------- Radar (6 boyut, 0-100) ---------------- */
+function RadarChart({ byDim, color = "#0F172A" }) {
+  const size = 320;
+  const cx = size / 2;
+  const cy = size / 2;
+  const maxR = 108;
+  const n = DIMENSIONS.length;
+
+  const pointAt = (i, r) => {
+    const angle = (-90 + (360 / n) * i) * (Math.PI / 180);
+    return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+  };
+
+  const rings = [20, 40, 60, 80, 100];
+  const dataPoints = DIMENSIONS.map((d, i) => pointAt(i, (byDim[d.key] / 100) * maxR));
+  const dataPath = dataPoints.map((p) => p.join(",")).join(" ");
+
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} width="100%" style={{ maxWidth: 320, display: "block", margin: "0 auto" }}>
+      {rings.map((ringVal) => {
+        const pts = DIMENSIONS.map((_, i) => pointAt(i, (ringVal / 100) * maxR).join(",")).join(" ");
+        return (
+          <polygon
+            key={ringVal}
+            points={pts}
+            fill="none"
+            stroke="#E2E8F0"
+            strokeWidth={ringVal === 100 ? 1.5 : 1}
+            strokeDasharray={ringVal === 100 ? "0" : "3,3"}
+          />
+        );
+      })}
+      {DIMENSIONS.map((d, i) => {
+        const [x, y] = pointAt(i, maxR);
+        return <line key={d.key} x1={cx} y1={cy} x2={x} y2={y} stroke="#CBD5E1" strokeWidth="1" />;
+      })}
+      <polygon points={dataPath} fill={`${color}26`} stroke={color} strokeWidth="2.5" />
+      {dataPoints.map((p, i) => (
+        <circle key={i} cx={p[0]} cy={p[1]} r="4" fill={color} stroke="#FFFFFF" strokeWidth="2" />
+      ))}
+      {DIMENSIONS.map((d, i) => {
+        const [x, y] = pointAt(i, maxR + 26);
+        return (
+          <text
+            key={d.key}
+            x={x}
+            y={y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="10"
+            fill="#334155"
+            fontWeight="700"
+            fontFamily="ui-monospace, monospace"
+          >
+            {d.short.toUpperCase()}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
 function KVKKModal({ onClose }) {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 z-50" onClick={onClose}>
@@ -488,6 +587,7 @@ export default function App() {
   const [contactErrors, setContactErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [pdfState, setPdfState] = useState("idle");
 
   const currentQ = QUESTIONS[qIndex];
 
@@ -524,6 +624,25 @@ export default function App() {
       const levelIndex = LEVELS.indexOf(dLevel);
       return { ...d, dLevel, levelIndex, scenario: DIM_SCENARIOS[d.key][levelIndex] };
     });
+
+  const handleDownloadPdf = async () => {
+    setPdfState("generating");
+    try {
+      await generateAfetPdfReport({
+        companyName: contact.companyName,
+        contactName: contact.contactName,
+        dimensions: DIMENSIONS,
+        overall,
+        byDim,
+        level,
+        weakestDims,
+      });
+      setPdfState("idle");
+    } catch (e) {
+      console.error("PDF üretim hatası:", e);
+      setPdfState("error");
+    }
+  };
 
   const restart = () => {
     setAnswers({});
@@ -833,6 +952,14 @@ export default function App() {
                 </p>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 items-center bg-white border border-slate-900/10 p-6">
+                <div className="text-center border-b md:border-b-0 md:border-r border-slate-900/10 pb-4 md:pb-0">
+                  <Gauge value={overall} color={level.color} />
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-slate-400 mt-1">GENEL SKOR / 100</div>
+                </div>
+                <RadarChart byDim={byDim} color={level.color} />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                 <div>
                   <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-3 border-b border-slate-900/10 pb-1">// BOYUT BAZLI ANALİZ</h3>
@@ -879,10 +1006,11 @@ export default function App() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 print:hidden">
                 <button
-                  onClick={() => window.print()}
-                  className="bg-slate-900 hover:bg-red-700 text-white font-mono text-xs uppercase tracking-widest py-3.5 px-6 transition duration-200 font-bold"
+                  onClick={handleDownloadPdf}
+                  disabled={pdfState === "generating"}
+                  className="bg-slate-900 hover:bg-red-700 disabled:opacity-60 text-white font-mono text-xs uppercase tracking-widest py-3.5 px-6 transition duration-200 font-bold"
                 >
-                  PDF RAPORU İNDİR →
+                  {pdfState === "generating" ? "RAPOR HAZIRLANIYOR..." : "PDF RAPORU İNDİR →"}
                 </button>
                 <button
                   onClick={restart}
