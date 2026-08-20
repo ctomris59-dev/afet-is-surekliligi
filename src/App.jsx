@@ -406,7 +406,7 @@ function MethodologyModal({ onClose }) {
 }
 
 /* ---------------- Gauge (0-100) ---------------- */
-function Gauge({ value, color = "#0F172A" }) {
+function Gauge({ value, color = "#0F172A", maxWidth = 220 }) {
   const size = 220;
   const cx = size / 2;
   const cy = size / 2 + 10;
@@ -429,7 +429,7 @@ function Gauge({ value, color = "#0F172A" }) {
   const [nx, ny] = polar(needleAngle, r - 14);
 
   return (
-    <svg viewBox={`0 0 ${size} ${size * 0.62}`} width="100%" style={{ maxWidth: 220, display: "block", margin: "0 auto" }}>
+    <svg viewBox={`0 0 ${size} ${size * 0.62}`} width="100%" style={{ maxWidth, display: "block", margin: "0 auto" }}>
       <path d={arcPath(startAngle, endAngle, r)} fill="none" stroke="#E2E8F0" strokeWidth="12" strokeLinecap="round" />
       <path d={arcPath(startAngle, needleAngle, r)} fill="none" stroke={color} strokeWidth="12" strokeLinecap="round" />
       <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
@@ -442,7 +442,7 @@ function Gauge({ value, color = "#0F172A" }) {
 }
 
 /* ---------------- Radar (6 boyut, 0-100) ---------------- */
-function RadarChart({ byDim, color = "#0F172A" }) {
+function RadarChart({ byDim, color = "#0F172A", maxWidth = 320 }) {
   const size = 320;
   const cx = size / 2;
   const cy = size / 2;
@@ -459,7 +459,7 @@ function RadarChart({ byDim, color = "#0F172A" }) {
   const dataPath = dataPoints.map((p) => p.join(",")).join(" ");
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width="100%" style={{ maxWidth: 320, display: "block", margin: "0 auto" }}>
+    <svg viewBox={`0 0 ${size} ${size}`} width="100%" style={{ maxWidth, display: "block", margin: "0 auto" }}>
       {rings.map((ringVal) => {
         const pts = DIMENSIONS.map((_, i) => pointAt(i, (ringVal / 100) * maxR).join(",")).join(" ");
         return (
@@ -936,67 +936,65 @@ export default function App() {
 
           {/* ---------------- RESULTS ---------------- */}
           {step === "results" && (
-            <div className="max-w-4xl mx-auto pb-10">
-              <div className="border-b border-slate-900/10 pb-6 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                  <div className="md:col-span-8">
-                    <span className="font-mono text-[11px] uppercase tracking-widest text-red-700 block mb-1 font-bold">// NİHAİ DEĞERLENDİRME</span>
-                    <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight uppercase text-slate-900" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <div className="max-w-6xl mx-auto h-full flex flex-col">
+              <div className="border-b border-slate-900/10 pb-2.5 mb-3 flex-shrink-0">
+                <div className="flex items-end justify-between gap-4 flex-wrap">
+                  <div>
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-red-700 block mb-0.5 font-bold">// NİHAİ DEĞERLENDİRME</span>
+                    <h2 className="text-xl md:text-2xl font-extrabold tracking-tight uppercase text-slate-900 leading-none" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {level.name}
                     </h2>
                   </div>
-                  <div className="md:col-span-4 flex flex-col md:items-end justify-end">
-                    <div className="font-mono text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-none">
-                      {Math.round(overall)}<span className="text-base text-slate-400">/100</span>
-                    </div>
+                  <div className="font-mono text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 leading-none">
+                    {Math.round(overall)}<span className="text-xs text-slate-400">/100</span>
                   </div>
                 </div>
-                <p className="text-slate-600 text-sm mt-3 max-w-2xl leading-relaxed">
+                <p className="text-slate-600 text-xs mt-1.5 leading-snug">
                   {level.desc}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 items-center bg-white border border-slate-900/10 p-6">
-                <div className="text-center border-b md:border-b-0 md:border-r border-slate-900/10 pb-4 md:pb-0">
-                  <Gauge value={overall} color={level.color} />
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-slate-400 mt-1">GENEL SKOR / 100</div>
-                </div>
-                <RadarChart byDim={byDim} color={level.color} />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-                <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-3 border-b border-slate-900/10 pb-1">// BOYUT BAZLI ANALİZ</h3>
-                  <div className="space-y-2.5">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 flex-1 min-h-0">
+                {/* SOL: Gauge + Radar + Boyut Skorları */}
+                <div className="md:col-span-5 bg-white border border-slate-900/10 p-3 flex flex-col min-h-0">
+                  <div className="grid grid-cols-2 gap-2 flex-shrink-0 border-b border-slate-900/10 pb-2 mb-2">
+                    <div className="text-center">
+                      <Gauge value={overall} color={level.color} maxWidth={130} />
+                      <div className="font-mono text-[8px] uppercase tracking-widest text-slate-400 mt-0.5">GENEL SKOR</div>
+                    </div>
+                    <RadarChart byDim={byDim} color={level.color} maxWidth={150} />
+                  </div>
+                  <div className="space-y-1.5 overflow-y-auto min-h-0">
                     {DIMENSIONS.map((d) => (
-                      <div key={d.key} className="border-b border-slate-900/10 pb-2">
-                        <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-1">
-                          <span className="font-bold text-slate-900">{d.label}</span>
+                      <div key={d.key}>
+                        <div className="flex justify-between font-mono text-[9px] uppercase tracking-widest mb-0.5">
+                          <span className="font-bold text-slate-900">{d.short}</span>
                           <span className="text-slate-500">%{Math.round(byDim[d.key])}</span>
                         </div>
-                        <div className="w-full bg-slate-200 h-1.5 rounded-none overflow-hidden">
-                          <div className="bg-slate-900 h-1.5 transition-all duration-1000" style={{ width: `${byDim[d.key]}%` }} />
+                        <div className="w-full bg-slate-200 h-1 rounded-none overflow-hidden">
+                          <div className="bg-slate-900 h-1 transition-all duration-1000" style={{ width: `${byDim[d.key]}%` }} />
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="font-mono text-[11px] uppercase tracking-widest text-slate-400 mb-3 border-b border-slate-900/10 pb-1">// ÖNCELİKLİ AKSİYONLAR VE SENARYO</h3>
-                  <div className="space-y-4">
+                {/* SAĞ: Öncelikli Aksiyonlar */}
+                <div className="md:col-span-7 bg-white border border-slate-900/10 p-3 flex flex-col min-h-0">
+                  <h3 className="font-mono text-[10px] uppercase tracking-widest text-slate-400 mb-2 flex-shrink-0">// ÖNCELİKLİ AKSİYONLAR VE SENARYO</h3>
+                  <div className="space-y-2.5 overflow-y-auto min-h-0">
                     {weakestDims.map((d) => (
-                      <div key={d.key} className="border-l-2 border-slate-900 pl-3 py-0.5">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="font-mono text-[10px] uppercase tracking-widest text-red-700 font-bold">{d.label}</span>
-                          <span className="font-mono text-[9px] uppercase px-1.5 py-0.5 bg-slate-200 text-slate-800 font-bold">
+                      <div key={d.key} className="border-l-2 border-slate-900 pl-2.5 py-0.5">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <span className="font-mono text-[9px] uppercase tracking-widest text-red-700 font-bold">{d.label}</span>
+                          <span className="font-mono text-[8px] uppercase px-1.5 py-0.5 bg-slate-200 text-slate-800 font-bold">
                             {d.dLevel.name}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-600 leading-relaxed mb-2">{d.scenario.scenario}</p>
-                        <ul className="space-y-1">
+                        <p className="text-[11px] text-slate-600 leading-snug mb-1">{d.scenario.scenario}</p>
+                        <ul className="space-y-0.5">
                           {d.scenario.actions.map((act, i) => (
-                            <li key={i} className="text-[11px] text-slate-700 flex gap-1.5">
+                            <li key={i} className="text-[10.5px] text-slate-700 flex gap-1.5 leading-snug">
                               <span className="font-mono text-slate-400 font-bold">0{i + 1}.</span>
                               <span>{act}</span>
                             </li>
@@ -1008,17 +1006,17 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 print:hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 print:hidden flex-shrink-0 mt-3">
                 <button
                   onClick={handleDownloadPdf}
                   disabled={pdfState === "generating"}
-                  className="bg-slate-900 hover:bg-red-700 disabled:opacity-60 text-white font-mono text-xs uppercase tracking-widest py-3.5 px-6 transition duration-200 font-bold"
+                  className="bg-slate-900 hover:bg-red-700 disabled:opacity-60 text-white font-mono text-xs uppercase tracking-widest py-3 px-6 transition duration-200 font-bold"
                 >
                   {pdfState === "generating" ? "RAPOR HAZIRLANIYOR..." : "PDF RAPORU İNDİR →"}
                 </button>
                 <button
                   onClick={restart}
-                  className="border border-slate-900 hover:bg-slate-900 hover:text-white text-slate-900 font-mono text-xs uppercase tracking-widest py-3.5 px-6 transition duration-200 font-bold"
+                  className="border border-slate-900 hover:bg-slate-900 hover:text-white text-slate-900 font-mono text-xs uppercase tracking-widest py-3 px-6 transition duration-200 font-bold"
                 >
                   YENİDEN BAŞLAT
                 </button>
