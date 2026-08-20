@@ -706,12 +706,10 @@ export default function App() {
     setStep("results");
   };
 
-  const isScrollScreen = step === "results" || step === "contact";
+  const isCenteredScreen = step === "intro" || step === "quiz";
 
   return (
-    <div className={`w-screen bg-[#FAF9F6] text-slate-900 flex flex-col relative ${
-      isScrollScreen ? "min-h-screen justify-start overflow-visible" : "h-screen justify-between overflow-hidden"
-    }`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className="h-screen w-screen bg-[#FAF9F6] text-slate-900 flex flex-col justify-between overflow-hidden relative" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       
       {/* Font Injections */}
       <style>{`
@@ -746,8 +744,8 @@ export default function App() {
       </header>
 
       {/* Main Container */}
-      <main className={`max-w-5xl mx-auto px-6 py-4 flex-1 w-full relative z-10 ${
-        isScrollScreen ? "" : "flex items-center justify-center overflow-hidden"
+      <main className={`max-w-5xl mx-auto px-6 py-4 flex-1 w-full relative z-10 min-h-0 overflow-y-auto ${
+        isCenteredScreen ? "flex items-center justify-center" : ""
       }`}>
         <div className="w-full">
 
