@@ -706,8 +706,12 @@ export default function App() {
     setStep("results");
   };
 
+  const isScrollScreen = step === "results" || step === "contact";
+
   return (
-    <div className="h-screen w-screen bg-[#FAF9F6] text-slate-900 flex flex-col justify-between overflow-hidden relative" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className={`w-screen bg-[#FAF9F6] text-slate-900 flex flex-col relative ${
+      isScrollScreen ? "min-h-screen justify-start overflow-visible" : "h-screen justify-between overflow-hidden"
+    }`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       
       {/* Font Injections */}
       <style>{`
@@ -741,8 +745,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Container - Kaydırmasız Tam Ekran */}
-      <main className="max-w-5xl mx-auto px-6 py-4 flex-1 w-full flex items-center justify-center relative z-10 overflow-hidden">
+      {/* Main Container */}
+      <main className={`max-w-5xl mx-auto px-6 py-4 flex-1 w-full relative z-10 ${
+        isScrollScreen ? "" : "flex items-center justify-center overflow-hidden"
+      }`}>
         <div className="w-full">
 
           {/* ---------------- INTRO ---------------- */}
@@ -932,7 +938,7 @@ export default function App() {
 
           {/* ---------------- RESULTS ---------------- */}
           {step === "results" && (
-            <div className="max-w-4xl mx-auto overflow-y-auto max-h-[75vh] pr-2">
+            <div className="max-w-4xl mx-auto pb-10">
               <div className="border-b border-slate-900/10 pb-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                   <div className="md:col-span-8">
