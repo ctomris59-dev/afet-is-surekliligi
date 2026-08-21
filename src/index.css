@@ -2,12 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root {
+html,
+body,
+#root {
+  width: 100%;
   height: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+html,
+body {
+  overscroll-behavior: none;
+  background: #f3f6f8;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+@media (max-height: 820px) {
+  .intro-ref {
+    display: none;
+  }
+  .answer-option {
+    padding-top: 0.62rem !important;
+    padding-bottom: 0.62rem !important;
+  }
+  .question-title {
+    font-size: clamp(1.08rem, 1.8vw, 1.7rem) !important;
+  }
+  .overview-desc,
+  .dim-ref {
+    display: none !important;
+  }
+  .action-scenario {
+    font-size: 9px !important;
+    line-height: 1rem !important;
+  }
+}
+
+@media (max-height: 700px) {
+  .option-copy {
+    font-size: 10.5px !important;
+    line-height: 1rem !important;
+  }
+  .answer-option {
+    padding-top: 0.48rem !important;
+    padding-bottom: 0.48rem !important;
+  }
+  .action-copy {
+    font-size: 8.7px !important;
+    line-height: 0.95rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .answer-option {
+    border-radius: 14px;
+  }
 }
 
 @media print {
-  body {
-    background: white !important;
+  html,
+  body,
+  #root {
+    overflow: visible !important;
+    height: auto !important;
   }
 }
