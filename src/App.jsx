@@ -692,8 +692,10 @@ export default function App() {
   return (
     <div className="h-[100dvh] w-full overflow-hidden bg-[#F3F6F8] text-[#1B2D40]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');`}</style>
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(199,66,66,.07),transparent_25%),radial-gradient(circle_at_90%_85%,rgba(46,104,215,.06),transparent_24%)]" />
-      <div className="pointer-events-none fixed inset-0 opacity-[.035]" style={{ backgroundImage: "linear-gradient(#10243D 1px,transparent 1px),linear-gradient(90deg,#10243D 1px,transparent 1px)", backgroundSize: "42px 42px" }} />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_8%_14%,rgba(199,66,66,.13),transparent_24%),radial-gradient(circle_at_88%_18%,rgba(16,36,61,.08),transparent_28%),radial-gradient(circle_at_76%_84%,rgba(183,55,55,.08),transparent_22%),linear-gradient(180deg,#F5F7FA_0%,#EEF3F6_100%)]" />
+      <div className="pointer-events-none fixed inset-0 opacity-[.04]" style={{ backgroundImage: "linear-gradient(#10243D 1px,transparent 1px),linear-gradient(90deg,#10243D 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+      <div className="pointer-events-none fixed right-[-90px] top-[90px] h-[280px] w-[280px] rounded-full bg-[#C74242]/[0.08] blur-3xl" />
+      <div className="pointer-events-none fixed bottom-[-80px] left-[-60px] h-[240px] w-[240px] rounded-full bg-[#10243D]/[0.07] blur-3xl" />
       <AppHeader onMethodology={() => setShowMethodology(true)} />
 
       <main className="relative z-10 h-[calc(100dvh-64px)] overflow-hidden">
@@ -712,13 +714,17 @@ export default function App() {
               </div>
             </div>
 
-            <div className="flex min-h-0 flex-col rounded-[30px] border border-white/[0.80] bg-white/[0.92] p-4 shadow-[0_20px_60px_rgba(16,42,68,.09)] backdrop-blur-xl sm:p-5 lg:col-span-7">
-              <div className="flex items-start justify-between gap-3"><div><div className="text-[9px] font-extrabold uppercase tracking-[.17em] text-[#C74242]">Değerlendirme mimarisi</div><h2 className="mt-1 text-xl font-extrabold tracking-tight text-[#14283F]">6 boyutta bütüncül dayanıklılık görünümü</h2></div><div className="rounded-xl bg-[#F8E8E8] px-2.5 py-1.5 text-[9px] font-black text-[#B73737]">BCM</div></div>
-              <div className="mt-3 grid min-h-0 flex-1 grid-cols-2 gap-2.5">
+            <div className="relative flex min-h-0 flex-col overflow-hidden rounded-[30px] border border-white/[0.80] bg-white/[0.93] p-4 shadow-[0_20px_60px_rgba(16,42,68,.09)] backdrop-blur-xl sm:p-5 lg:col-span-7">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(199,66,66,.05)_0%,rgba(255,255,255,0)_40%,rgba(16,36,61,.045)_100%)]" />
+              <div className="pointer-events-none absolute right-0 top-0 h-40 w-40 rounded-full bg-[#C74242]/[0.06] blur-2xl" />
+              <div className="pointer-events-none absolute bottom-[-20px] left-[22%] h-28 w-56 rounded-full bg-[#10243D]/[0.035] blur-2xl" />
+              <div className="relative z-10 flex items-start justify-between gap-3"><div><div className="text-[10px] font-extrabold uppercase tracking-[.19em] text-[#C74242]">Değerlendirme mimarisi</div><h2 className="mt-1.5 text-[clamp(1.55rem,2.25vw,2rem)] font-extrabold tracking-tight text-[#14283F]">6 boyutta bütüncül dayanıklılık görünümü</h2><p className="mt-1.5 max-w-2xl text-[11.5px] leading-5 text-[#6D7D8C] sm:text-[12.5px]">İşletmenizin afet, acil durum, veri sürekliliği ve operasyonel dayanıklılık düzeyini temel standart başlıklarında tek bakışta görün.</p></div><div className="rounded-xl bg-[#F8E8E8] px-3 py-1.5 text-[10px] font-black text-[#B73737]">BCM</div></div>
+              <div className="relative z-10 mt-4 grid min-h-0 flex-1 grid-cols-2 gap-3">
                 {DIMENSIONS.map((d, i) => (
-                  <div key={d.key} className="flex min-h-0 flex-col rounded-[18px] border border-[#E0E6EB] bg-[#F9FAFB] p-3.5 sm:p-4">
-                    <div className="flex items-start gap-3"><div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#F8E8E8] text-[#B73737]"><Icon name={DIM_ICONS[d.key]} size={17} /></div><div><div className="text-[9px] font-black text-[#C74242]">0{i + 1}</div><div className="text-[12px] font-extrabold leading-4 text-[#1A2E44] sm:text-[13px]">{d.label}</div></div></div>
-                    <div className="intro-ref mt-2 text-[9.5px] leading-4 text-[#778592]">{d.ref}</div>
+                  <div key={d.key} className="relative flex min-h-0 flex-col overflow-hidden rounded-[20px] border border-[#E0E6EB] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FAFB_100%)] p-4 shadow-[0_8px_24px_rgba(16,42,68,.045)] sm:p-4.5">
+                    <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 rounded-full bg-[#C74242]/[0.05] blur-2xl" />
+                    <div className="relative z-10 flex items-start gap-3"><div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-[#F8E8E8] text-[#B73737] shadow-[inset_0_1px_0_rgba(255,255,255,.55)]"><Icon name={DIM_ICONS[d.key]} size={18} /></div><div><div className="text-[10px] font-black text-[#C74242]">0{i + 1}</div><div className="text-[14px] font-extrabold leading-[1.35] text-[#1A2E44] sm:text-[15px]">{d.label}</div></div></div>
+                    <div className="intro-ref relative z-10 mt-3 text-[11px] leading-5 text-[#6F7E8D] sm:text-[11.5px]">{d.ref}</div>
                   </div>
                 ))}
               </div>
